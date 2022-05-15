@@ -28,10 +28,13 @@ const double kToleranceTaylorExpansionError = 1e-13;
 const size_t kMaxVariationSweeps = 10;
 const double kVariationConvergeTolerance = 1e-13;
 
+const std::string kMpoPathPreFix = "mpo";
+
 
 // MPO variation optimize params
 struct MpoVOptimizeParams {
   MpoVOptimizeParams(
+      const std::string& initial_mpo_path,
       const size_t Dmin, const size_t Dmax,
       const double trunc_err,
       const size_t sweeps = kMaxVariationSweeps,
@@ -40,6 +43,7 @@ struct MpoVOptimizeParams {
       ) :
       Dmin(Dmin), Dmax(Dmax), trunc_err(trunc_err),
       sweeps(sweeps), converge_tolerance(converge_tolerance),
+      initial_mpo_path(initial_mpo_path),
       temp_path(temp_path) {}
 
   size_t Dmin;
@@ -48,6 +52,8 @@ struct MpoVOptimizeParams {
 
   size_t sweeps;
   double converge_tolerance;
+
+  std::string initial_mpo_path;
   std::string temp_path;
 };
 
@@ -62,6 +68,7 @@ struct XtrgParams {
       const double tolerace_taylor_expansion = kToleranceTaylorExpansionError,
       const size_t sweeps_variation = kMaxVariationSweeps,
       const double converge_tolerance_variation = kVariationConvergeTolerance,
+      const std::string& mpo_path_prefix = kMpoPathPreFix,
       const std::string& temp_path = kRuntimeTempPath
   ) :
       tau(tau), M(M),
@@ -70,6 +77,7 @@ struct XtrgParams {
       tolerace_taylor_expansion(tolerace_taylor_expansion),
       sweeps_variation(sweeps_variation),
       converge_tolerance_variation(converge_tolerance_variation),
+      mpo_path_prefix(mpo_path_prefix),
       temp_path(temp_path) {}
 
   // physical
@@ -91,6 +99,7 @@ struct XtrgParams {
 
   // Advanced parameters
   /// Runtime temporary files directory path
+  std::string mpo_path_prefix;
   std::string temp_path;
 };
 } /* xtrg */

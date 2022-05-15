@@ -196,10 +196,14 @@ void MpoProduct(
 /** mpo1 * mpo2, mpo1 above mpo2 bottom
  *  compression according the bond dimension, by variational method.
  *  two-site update
+ *  The function assume the output_mpo offer a good initial MPO
+ *  except its elements are pointer pointing to nullptr,
+ *  in which case we will copy a mpo1 to output_mpo
  *
  *  convergence are justified by the norm2
  *  Finally, the central of the output_mpo is put in site 1.
  *  The output MPO is NOT normalized.
+ *
  * @tparam TenElemT
  * @tparam QNT
  * @param mpo1
@@ -222,24 +226,24 @@ double MpoProduct(
 ) {
   using Tensor = GQTensor<TenElemT, QNT>;
   const size_t N = mpo1.size();
+  double output_mpo_valid(true);
   for(size_t i = 0; i < N; i++){
-    if(output_mpo(i)!=nullptr) {
-      delete  output_mpo(i);
+    if(output_mpo(i) == nullptr) {
+      output_mpo_valid = false;
+      break;
     }
-    output_mpo(i) = new Tensor();
-    output_mpo[i] = mpo1[i];
+  }
+  if( !output_mpo_valid ) {
+    output_mpo = mpo1;
   }
   const size_t indent_level = 1;
   std::cout << "\n"
             << IndentPrinter(indent_level)
             << "left canonicalize and generate environment tensors. " << std::endl;
 //  Timer initial_timer("product_initial");
-//  std::cout << "success here1" << std::endl;
   output_mpo.Centralize(0);
-//  std::cout << "success here2" << std::endl;
 
   Generate3MPOEnvs(output_mpo, mpo1, mpo2, temp_path);
-//  std::cout << "success here3" << std::endl;
 
 //  initial_timer.PrintElapsed();
 

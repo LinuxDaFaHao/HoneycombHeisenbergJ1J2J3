@@ -27,6 +27,7 @@ using namespace gqten;
 using namespace gqmps2;
 
 
+const std::string kMpoTenBaseName = "mpo";
 
 //forward declaration
 template <typename TenElemT, typename QNT>
@@ -45,7 +46,10 @@ double MpoProduct(
     const std::string temp_path
 );
 
-
+inline std::string GenMPOTenName(const std::string &mpo_path, const size_t idx) {
+  return mpo_path + "/" +
+      kMpoTenBaseName + std::to_string(idx) + "." + kGQTenFileSuffix;
+}
 
 using MPOTenCanoType = MPSTenCanoType;
 
@@ -151,6 +155,7 @@ class FiniteMPO : public TenVec<GQTensor<TenElemT, QNT>> {
     const size_t N = this->size();
 
     FiniteMPO result(N);
+    result.Load(optimize_params.initial_mpo_path);
     double norm2 = MpoProduct(*this, *this, result,
                optimize_params.Dmin, optimize_params.Dmax, optimize_params.trunc_err,
                optimize_params.sweeps, optimize_params.converge_tolerance,
@@ -163,14 +168,8 @@ class FiniteMPO : public TenVec<GQTensor<TenElemT, QNT>> {
       result(i) = nullptr;
     }
     center_ = result_center;
-    for(size_t i = 0; i < center_; i++) {
-      tens_cano_type_[i] = MPOTenCanoType::LEFT;
-    }
-    tens_cano_type_[center_] = MPOTenCanoType::NONE;
-    for(size_t i = center_+1; i < N; i++) {
-      tens_cano_type_[i] = MPOTenCanoType::RIGHT;
-    }
-
+    assert(center_ != kUncentralizedCenterIdx);
+    SetCenter_();
     return norm2;
   }
 
@@ -193,6 +192,38 @@ class FiniteMPO : public TenVec<GQTensor<TenElemT, QNT>> {
   double Truncate(const GQTEN_Double, const size_t, const size_t);
 
 
+  void Dump(const std::string &mpo_path ) const {
+    if (!IsPathExist(mpo_path)) { CreatPath(mpo_path); }
+    std::string file;
+    for (size_t i = 0; i < this->size(); ++i) {
+      file = GenMPOTenName(mpo_path, i);
+      this->DumpTen(i, file);
+    }
+
+    file = mpo_path + "/center";
+    std::ofstream ofs(file, std::ofstream::binary);
+    ofs << center_;
+    ofs.close();
+  }
+
+  bool Load(const std::string &mpo_path) {
+    if (!IsPathExist(mpo_path)) {
+      return false;
+//      std::cout << "DONOT FIND THE PATH " << mpo_path <<". Please check the mpo data directory" << std::endl;
+    }
+    std::string file;
+    for (size_t i = 0; i < this->size(); ++i) {
+      file = GenMPOTenName(mpo_path, i);
+      this->LoadTen(i, file);
+    }
+
+    file = mpo_path + "/center";
+    std::ifstream ifs(file, std::ifstream::binary);
+    ifs >> center_;
+    ifs.close();
+    SetCenter_();
+    return true;
+  }
 
   void Scale(const TenElemT s) {
     if(center_ != kUncentralizedCenterIdx) {
@@ -243,6 +274,17 @@ class FiniteMPO : public TenVec<GQTensor<TenElemT, QNT>> {
                             const size_t, const size_t,
                             GQTEN_Double&, size_t&);
 
+  void SetCenter_() {
+    if(center_ != kUncentralizedCenterIdx) {
+      for(size_t i = 0; i < center_; i++) {
+        tens_cano_type_[i] = MPOTenCanoType::LEFT;
+      }
+      tens_cano_type_[center_] = MPOTenCanoType::NONE;
+      for(size_t i = center_+1; i < this->size(); i++) {
+        tens_cano_type_[i] = MPOTenCanoType::RIGHT;
+      }
+    }
+  }
   template <typename TenElemT2, typename QNT2>
   friend double MpoProduct(
       const FiniteMPO<TenElemT2, QNT2>& mpo1,
@@ -351,8 +393,9 @@ double FiniteMPO<TenElemT, QNT>::Truncate(const GQTEN_Double trunc_err,
   for (size_t i = N-1; i > 0; i--) {
     this->RightCanonicalizeTen_(i, trunc_err, Dmin, Dmax, actual_trunc_err, D);
     std::cout << "Truncate FiniteMPO bond " << std::setw(4) << i
-              << " TruncErr = " << std::setprecision(2) << std::scientific << actual_trunc_err << std::fixed
-              << " D = " << std::setw(5) << D;
+              << ", TruncErr = " << std::setprecision(2) << std::scientific << actual_trunc_err << std::fixed
+              << ", D = " << std::setw(5) << D
+              << std::endl;
   }
   return norm2;
 }
@@ -360,7 +403,7 @@ double FiniteMPO<TenElemT, QNT>::Truncate(const GQTEN_Double trunc_err,
 
 
 /** the trace of the operator
- *  todo: optimize
+ *  todo: (not important) using trace(summation) to replace contract with identity one day.
  * @tparam TenElemT
  * @tparam QNT
  */

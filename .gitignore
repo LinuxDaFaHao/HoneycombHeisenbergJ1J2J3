@@ -41,3 +41,5 @@ cmake-build-debug/
 # Project
 data/
 run/
+
+*.DS_Store

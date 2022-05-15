@@ -23,9 +23,13 @@ using namespace gqten;
 using namespace gqmps2;
 
 
+std::string GenDensityMatrixMpoPath(
+    const std::string& mpo_path_prefix,
+    const double tau
+);
+
 void DumpThermodynamicQuantity(
     const std::vector<double> beta,
-    const std::vector<double> Z_set,
     const std::vector<double> Fn_set,
     const std::string &basename
 );
@@ -52,48 +56,56 @@ void Xtrg(
   assert( Hamiltonian.size() == density_matrix.size() );
   double beta(xtrg_params.tau);
   double norm2 = InitializeDensityMatrix(Hamiltonian, xtrg_params, density_matrix);
+  std::string mpo_rho_path = GenDensityMatrixMpoPath(xtrg_params.mpo_path_prefix, beta);
+  density_matrix.Dump(mpo_rho_path);
 
-
-  MpoVOptimizeParams mpo_v_optimize_params(
-      xtrg_params.Dmin, xtrg_params.Dmax,
-      xtrg_params.trunc_err, xtrg_params.sweeps_variation,
-      xtrg_params.converge_tolerance_variation,
-      xtrg_params.temp_path
-      );
   std::cout << "========== Doubling the density matrices ==========="
             << std::endl;
 
   const size_t M = xtrg_params.M;
-  std::vector<double> beta_set(M+1), Z_set(M+1), Fn_set(M+1);
-  for(size_t step = 0; step < xtrg_params.M; step++) {
+  std::vector<double> beta_set(M+1), Fn_set(M+1);
+  for(size_t step = 0; step < xtrg_params.M + 1; step++) {
     beta = beta*2.0;
     std::cout << "step = " << step
               << ",  beta = " << beta;
-    double Z = norm2 * norm2; // partition function of square of current density matrix;
-    double F = -std::log(Z) / (beta);  // partition function of 2*beta
-    std::cout << "F(beta = " << beta <<") =" << F <<"\n" <<std::endl;
+    if(step == 0) {
+      Fn_set[step] = - std::log(norm2) / xtrg_params.tau;
+    } else {
+      Fn_set[step] = Fn_set[step - 1] - 2.0 * std::log(norm2) /beta;
+    }
     beta_set[step] = beta;
-    Z_set[step] = Z;
-    Fn_set[step] = F;
-
-    Timer double_rho_timer("double_density_matrix");
-    norm2 = Z * density_matrix.SquareAndNormlize(mpo_v_optimize_params);
-    double_rho_timer.PrintElapsed();
+    std::cout << ",\tF(beta = " << beta <<") =" << Fn_set[step] <<"\n" <<std::endl;
+    if(step < M) {
+      Timer double_rho_timer("double_density_matrix");
+      mpo_rho_path = GenDensityMatrixMpoPath(xtrg_params.mpo_path_prefix, beta);
+      MpoVOptimizeParams mpo_v_optimize_params(
+          mpo_rho_path,
+          xtrg_params.Dmin, xtrg_params.Dmax,
+          xtrg_params.trunc_err, xtrg_params.sweeps_variation,
+          xtrg_params.converge_tolerance_variation,
+          xtrg_params.temp_path
+      );
+      norm2 =  density_matrix.SquareAndNormlize(mpo_v_optimize_params);
+      density_matrix.Dump(mpo_rho_path);
+      double_rho_timer.PrintElapsed();
+    }
   }
-  beta_set.back() = beta*2.0;
-  std::cout << "step = end"
-            << ",  beta = " << 2 * beta;
-  Z_set.back() = norm2 * norm2;
-  Fn_set.back() = -std::log(Z_set.back()) / (beta_set.back());
-  std::cout << "F(beta = " << beta_set.back() <<") =" << Fn_set.back() <<"\n" <<std::endl;
-  DumpThermodynamicQuantity(beta_set, Z_set, Fn_set, "free_energy");
+  DumpThermodynamicQuantity(beta_set,  Fn_set, "free_energy");
   return;
 }
 
 
+std::string GenDensityMatrixMpoPath(
+    const std::string& mpo_path_prefix,
+    const double tau
+) {
+  return mpo_path_prefix + "_rho"  + "_tau" + std::to_string(tau);
+}
+
+
+
 void DumpThermodynamicQuantity(
     const std::vector<double> beta,
-    const std::vector<double> Z_set,
     const std::vector<double> Fn_set,
     const std::string &basename
 ) {
@@ -106,8 +118,6 @@ void DumpThermodynamicQuantity(
     ofs << "  [";
 
     DumpAvgVal(ofs, beta[i]);
-    ofs << ", ";
-    DumpAvgVal(ofs, Z_set[i]);
     ofs << ", ";
     DumpAvgVal(ofs, Fn_set[i]);
     if (i == beta.size()-1) {

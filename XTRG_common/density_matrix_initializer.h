@@ -27,6 +27,13 @@ using namespace gqten;
 using namespace gqmps2;
 
 
+//forward declaration
+
+std::string GenHnMpoPath(
+    const std::string& mpo_path_prefix,
+    const std::size_t n, //the power
+    const double tau
+);
 /* FYI, lanczos figure
  * |----0                       0-----
  * |          2         2            |
@@ -76,7 +83,9 @@ double InitializeDensityMatrix(
   MPOT m_tau_h(hamiltonian); // minus tau times hamiltonian
   m_tau_h.Scale(-tau);
   GenerateIndentiyMPO(hamiltonian, density_matrix);
-  MPOT temp_sum_mpo(N), A(m_tau_h), temp_multiply_mpo(N);  //temp mpo's
+  TenElemT t0 = density_matrix.Trace();
+  std::cout << "power i = 0, Identity, Trace(0) = " << std::setprecision(7) << std::scientific << t0 << std::endl;
+  MPOT A(m_tau_h);  //temp mpo's
   // A =  (-tau * hamiltonian) ^ i / ( i! )
   // temp_multiply_mpo -> A
 
@@ -84,60 +93,69 @@ double InitializeDensityMatrix(
   if (!IsPathExist(params.temp_path)) {
     CreatPath(params.temp_path);
   }
-
+  double norm2(1.0);
   for(size_t i = 1; i < max_taylor_expansion_order; i++){
-    std::cout << "power i = " << i ;
+    std::cout << "power i = " << i << std::endl;
     Timer power_n_timer("power_n");
+    MPOT temp_multiply_mpo(N);
+    std::string mpo_Hn_path = xtrg::GenHnMpoPath(params.mpo_path_prefix, i, tau);
     if(i==1) {
       //suppose bond_dimension_of_H <= Dmax.
     } else if( std::pow(bond_dimension_of_H, i) <= Dmax) {
       MpoProduct(A, m_tau_h, temp_multiply_mpo);
     } else { //need compress
+      temp_multiply_mpo.Load(mpo_Hn_path);
+
       MpoProduct(A, m_tau_h, temp_multiply_mpo,
                  Dmin, Dmax, trunc_err,
                  sweep_time_max, params.converge_tolerance_variation,
                  temp_path);
-      std::cout << "power i = " << i ;
     }
     if(i > 1){
       temp_multiply_mpo.Scale((1.0)/i);
-      // TODO: write test, debug and fix operator= (&, &&)
-//      A = std::move(temp_multiply_mpo);
-      for(size_t i = 0; i < N; i++) {
-        delete A(i);
-        A(i) = temp_multiply_mpo(i);
-        temp_multiply_mpo(i) = nullptr;
-      }
+      // TODO: write a health operator=(&&)
+      // The natural operator=(&&) will std::move(rhs.ten_cano_type_) and release
+      // its memory. We don't want it. We just want set it to NONE;
+      A = std::move(temp_multiply_mpo);
     }
     density_matrix += A;
+    A.Dump(mpo_Hn_path);
 
     TenElemT t = A.Trace();
     size_t bond_dimension_of_A = A.GetMaxBondDimension();
+    if( density_matrix.GetMaxBondDimension() > params.Dmax ) {
+      norm2 *= density_matrix.Truncate(1e-16, params.Dmax, params.Dmax);
+    }
     size_t power_n_elapsed_time = power_n_timer.Elapsed();
+    std::cout << "power i = " << i ;
     std::cout << " D(H^"<< i <<") = " << std::setw(5) << bond_dimension_of_A
               << " Time = " << std::setw(8) << power_n_elapsed_time
               << " Trace("<<i<<") = " << std::setprecision(7) << std::scientific << t;
     std::cout << std::scientific << std::endl;
     if( i%2 == 0) {
       assert(t > 0.0);
-      if( std::abs(t) < tolerance_taylor_expansion_error) {
+      if( std::abs(t / t0) < tolerance_taylor_expansion_error) {
         break;
       }
     }
   }
 
   density_matrix.Centralize(0);
-  double norm2 = density_matrix.Normlize();
+  norm2 *= density_matrix.Normlize();
   std::cout << "The series expansion was finished. The bond dimension of rho(tau) = "
             << density_matrix.GetMaxBondDimension() << std::endl;
-//TODO: test the results of here if need
+
   taylor_expansion_timer.PrintElapsed();
   return norm2;
 }
 
-
-
-
+std::string GenHnMpoPath(
+    const std::string& mpo_path_prefix,
+    const std::size_t n, //the power
+    const double tau
+) {
+  return mpo_path_prefix + "_H" + std::to_string(n) + "_tau" + std::to_string(tau);
+}
 
 } //xtrg
 
