@@ -12,7 +12,7 @@
 
 namespace spin_one_model {
 //Spin-1 operators
-extern Tensor sz, sp,sm, id;
+extern Tensor sz, sp, sm, id, sz_square;
 void OperatorInitial();
 }
 

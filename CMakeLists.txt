@@ -126,7 +126,8 @@ link_libraries(
 add_executable(mpogen src/mpogen.cpp src/operators.cpp)
 add_executable(dmrg src/dmrg.cpp src/myutil.cpp)
 add_executable(measure1 src/measure1.cpp src/myutil.cpp src/operators.cpp)
+add_executable(measuresf src/measure_spin_structure_factor.cpp src/myutil.cpp src/operators.cpp)
 add_executable(xtrg src/xtrg.cpp src/myutil.cpp)
 
 add_executable(test1 XTRG_common/xy_model_test.cpp)
-#add_executable(test2 XTRG_common/transverse_ising_test.cpp)
+add_executable(test2 XTRG_common/transverse_ising_test.cpp)

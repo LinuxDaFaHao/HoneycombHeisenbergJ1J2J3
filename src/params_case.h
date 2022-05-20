@@ -20,6 +20,7 @@ struct CaseParams : public CaseParamsParserBasic {
     J1 = ParseDouble("J1");
     J2 = ParseDouble("J2");
     J3 = ParseDouble("J3");
+    Dzz = ParseDouble("Dzz");
     Sweeps = ParseInt("Sweeps");
     Dmin = ParseInt("Dmin");
     Dmax = ParseInt("Dmax");
@@ -44,6 +45,7 @@ struct CaseParams : public CaseParamsParserBasic {
   double J1;
   double J2;
   double J3;
+  double Dzz;
   size_t Sweeps;
   size_t Dmin;
   size_t Dmax;

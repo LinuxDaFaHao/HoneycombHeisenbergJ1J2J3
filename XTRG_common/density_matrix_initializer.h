@@ -126,7 +126,7 @@ double InitializeDensityMatrix(
     if( density_matrix.GetMaxBondDimension() > params.Dmax ) {
       norm2 *= density_matrix.Truncate(1e-16, params.Dmax, params.Dmax);
     }
-    size_t power_n_elapsed_time = power_n_timer.Elapsed();
+    double power_n_elapsed_time = power_n_timer.Elapsed();
     std::cout << "power i = " << i ;
     std::cout << " D(H^"<< i <<") = " << std::setw(5) << bond_dimension_of_A
               << " Time = " << std::setw(8) << power_n_elapsed_time

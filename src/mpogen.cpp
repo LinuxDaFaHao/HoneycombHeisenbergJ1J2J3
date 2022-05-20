@@ -9,7 +9,7 @@
 #include "operators.h"
 #include "params_case.h"
 #include "gqmps2/gqmps2.h"
-#include "honeycomb_latiice.h"
+#include "honeycomb_lattice.h"
 
 #include <ctime>
 
@@ -27,7 +27,10 @@ int main(int argc, char *argv[]) {
   double J1 = params.J1;
   double J2 = params.J2;
   double J3 = params.J3;
-  cout << "Model parameter: J1 = " << J1 << ",\t J2 = " << J2 << ",\t J3 = " << J3 << endl;
+  cout << "Model parameter: J1 = " << J1
+       << ",\t J2 = " << J2
+       << ",\t J3 = " << J3
+       << ",\t Dzz = " << params.Dzz << endl;
   clock_t startTime,endTime;
   startTime = clock();
 
@@ -49,6 +52,10 @@ int main(int argc, char *argv[]) {
   } else {
     std::cout << "Do not support geometry now. Exit program." << std::endl;
     exit(1);
+  }
+
+  for(size_t i = 0; i < N; i++) {
+    mpo_gen.AddTerm(params.Dzz, sz_square, i);
   }
 
   for(auto& link : plattice->nearest_neighbor_links) {

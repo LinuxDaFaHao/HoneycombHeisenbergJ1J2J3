@@ -14,6 +14,7 @@ Tensor sz = Tensor({pb_in, pb_out});
 Tensor sp = Tensor({pb_in, pb_out});
 Tensor sm = Tensor({pb_in, pb_out});
 Tensor id = Tensor({pb_in, pb_out});
+Tensor sz_square = Tensor({pb_in, pb_out});
 
 
 void OperatorInitial(){
@@ -23,6 +24,10 @@ void OperatorInitial(){
     sz({0, 0}) = 1.0;
     sz({1, 1}) = 0.0;
     sz({2, 2}) = -1.0;
+
+    sz_square({0, 0}) = 1.0;
+    sz_square({1, 1}) = 0.0;
+    sz_square({2, 2}) = 1.0;
 
     sp({1, 0}) = sqrt(2.0);
     sp({2, 1}) = sqrt(2.0);

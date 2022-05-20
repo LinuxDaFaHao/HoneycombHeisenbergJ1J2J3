@@ -19,6 +19,8 @@
 #include "DefSpinOne.h"
 #include "myutil.h"
 
+
+//TODO: measurement
 using namespace std;
 
 int main(int argc, char *argv[]) {
