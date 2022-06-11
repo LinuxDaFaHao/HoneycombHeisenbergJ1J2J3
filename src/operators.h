@@ -1,6 +1,6 @@
 /*
  * File Name: operators.h
- * Description: Declare the operators in spin-1/2 model
+ * Description: Declare the operators in spin_-1/2 model
  * Created by Hao-Xin on 2022/04/09.
  *
  */

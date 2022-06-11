@@ -1,6 +1,6 @@
 /*
  * File Name: operators.cpp
- * Description: Define the operators in spin-1 model
+ * Description: Define the operators in spin_-1 model
  * Created by Hao-Xin on 2022/04/09.
  *
  */

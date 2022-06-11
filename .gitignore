@@ -34,6 +34,7 @@
 # Cmake build
 build/
 cmake-build-debug/
+release/
 
 # CLion
 .idea
@@ -43,3 +44,4 @@ data/
 run/
 
 *.DS_Store
+*.mat

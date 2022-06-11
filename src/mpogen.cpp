@@ -1,6 +1,6 @@
 /*
  * File Name: mpogen.cpp
- * Description: Generate and dump mpo for the spin model
+ * Description: Generate and dump mpo for the spin_ model
  * Created by Hao-Xin on 2022/04/09.
  *
  */

@@ -1,0 +1,11 @@
+//
+// Created by Hao-Xin on 2022/5/22.
+//
+
+#ifndef HONEYCOMBHEISENBERG_MONTECARLO_SRC_SWCLUSTER_H_
+#define HONEYCOMBHEISENBERG_MONTECARLO_SRC_SWCLUSTER_H_
+
+#include <vector>
+
+using SWCluster = std::vector<size_t>;
+#endif //HONEYCOMBHEISENBERG_MONTECARLO_SRC_SWCLUSTER_H_

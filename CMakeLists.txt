@@ -131,3 +131,8 @@ add_executable(xtrg src/xtrg.cpp src/myutil.cpp)
 
 add_executable(test1 XTRG_common/xy_model_test.cpp)
 add_executable(test2 XTRG_common/transverse_ising_test.cpp)
+
+add_executable(testising MonteCarlo_src/ising_test.cpp)
+add_executable(testxy MonteCarlo_src/xy_test.cpp)
+add_executable(heisenberg MonteCarlo_src/classical_heisenberg.cpp)
+add_executable(testani1 MonteCarlo_src/anisotropy_test1.cpp)

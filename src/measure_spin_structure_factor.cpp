@@ -42,8 +42,8 @@ int main(int argc, char *argv[]) {
   /******** define the measure_tasks ********/
   std::vector<MeasureGroupTask> measure_tasks;
   measure_tasks.reserve(N);
-  size_t begin_x = Lx/4;
-  size_t end_x = 3*Lx/4 + 1;
+  size_t begin_x = Lx/2;
+  size_t end_x = 3*Lx/2 + 1;
   for(size_t i = begin_x * Ly; i < end_x * Ly; i++) {
     const size_t site1 = i;
     std::vector<size_t> site2;
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
     measure_tasks.push_back(MeasureGroupTask(site1, site2));
   }
 
-  Timer one_site_timer("measure spin structure factors");
+  Timer one_site_timer("measure spin_ structure factors");
   MeasureTwoSiteOp(mps, sz, sz, measure_tasks, "zzsf", world);
   MeasureTwoSiteOp(mps, sp, sm, measure_tasks, "pmsf", world);
   MeasureTwoSiteOp(mps, sm, sp, measure_tasks, "mpsf", world);

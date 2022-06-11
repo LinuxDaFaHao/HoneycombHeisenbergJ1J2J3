@@ -1,6 +1,6 @@
 /*
  * File Name: DefSpinOne.h
- * Description: Define the types, constant and spin-1 Hilbert Space in a spin-1 model
+ * Description: Define the types, constant and spin_-1 Hilbert Space in a spin_-1 model
  * Created by Hao-Xin on 2022/04/09.
  *
  */
