@@ -59,6 +59,7 @@ int main(int argc, char **argv) {
       );
   MCParams mc_params;
   mc_params.sweeps = sweeps;
+  mc_params.sample_interval = 10;
   mc_params.print_interval = 100;
   mc_params.filename_postfix = "xy" + std::to_string(world_rank)
       + "beta" + std::to_string(beta)

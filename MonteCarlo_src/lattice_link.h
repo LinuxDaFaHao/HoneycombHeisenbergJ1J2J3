@@ -157,8 +157,8 @@ class HoneyCombTorusLatticeLink : public LatticeLink<DimDof, NumOfCouplingType> 
  public:
   HoneyCombTorusLatticeLink(const size_t Lx, const size_t Ly,
                             const std::array<CST, NumOfCouplingType> &coupling_structures) :
-                            Lx_(Lx), Ly_(Ly), N_(2 * Lx * Ly),
-      LatticeLink<DimDof, NumOfCouplingType>(coupling_structures) {
+      LatticeLink<DimDof, NumOfCouplingType>(coupling_structures),
+      Lx_(Lx), Ly_(Ly), N_(2 * Lx * Ly) {
     const size_t N = Lx * Ly * 2;
     for(size_t i = 0; i < NumOfCouplingType; i++) {
       this->links[i].resize(N);

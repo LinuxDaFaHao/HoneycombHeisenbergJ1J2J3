@@ -47,6 +47,9 @@ class LatticeConfig {
     }
   }
 
+  void SetSiteSpin(const size_t site, const LocalDOFT &spin) {
+    config_[site] = spin;
+  }
   /* calculate the energy according to the lattice link (including coupling structures)
    * The Hamiltonian is defined with extra minus sign
    */
@@ -103,6 +106,7 @@ class LatticeConfig {
   }
 
   /**
+   * using when growing the cluster
    *
    * @param site1
    * @param site2
@@ -126,6 +130,65 @@ class LatticeConfig {
         return false;
       }
     }
+  }
+
+  //TODO: optimize
+  template <size_t InteractionRange>
+  double EnergyRelevantToSite(
+      const size_t site,
+      const LatticeLink<DimDof, InteractionRange> &lattice_link
+      ) const {
+    auto& coupling_structures = lattice_link.coupling_structures;
+    auto& links = lattice_link.links;
+    auto& spin = config_[site];
+    double e0 = spin * ( coupling_structures[0] * spin);
+
+    double e2 = 0.0;
+    for(size_t inter_range = 1; inter_range < InteractionRange; inter_range++) {
+      auto& J = coupling_structures[inter_range];
+      auto& link_set = links[inter_range];
+      assert(N_ == link_set.size());
+      auto& site2_set = link_set[site];
+      for(auto site2 : site2_set) {
+        auto& spin2 = config_[site2];
+        e2 += spin * (J * spin2);
+      }
+    }
+    return -( e0 + e2 );
+  }
+
+  /// the case we assume the spin in the site is replaced by another spin
+  template <size_t InteractionRange>
+  double EnergyRelevantToSite(
+      const size_t site,
+      const LatticeLink<DimDof, InteractionRange> &lattice_link,
+      const LocalDOFT &spin
+  ) const {
+    auto& coupling_structures = lattice_link.coupling_structures;
+    auto& links = lattice_link.links;
+    double e0 = spin * ( coupling_structures[0] * spin);
+
+    double e2 = 0.0;
+    for(size_t inter_range = 1; inter_range < InteractionRange; inter_range++) {
+      auto& J = coupling_structures[inter_range];
+      auto& link_set = links[inter_range];
+      assert(N_ == link_set.size());
+      auto& site2_set = link_set[site];
+      for(auto site2 : site2_set) {
+        auto& spin2 = config_[site2];
+        e2 += spin * (J * spin2);
+      }
+    }
+    return -( e0 + e2 );
+  }
+
+  template <size_t InteractionRange>
+  double EnergyDifferenceFlipSite(
+      const size_t site,
+      const LocalDOFT &fliped_spin,
+      const LatticeLink<DimDof, InteractionRange>& lattice_link
+      ) const {
+    return - EnergyRelevantToSite(site, lattice_link) + EnergyRelevantToSite(site, lattice_link, fliped_spin);
   }
 
   template <size_t InteractionRange>
@@ -155,10 +218,6 @@ class LatticeConfig {
     }
 
     return   2 * (h2 + sia);
-  }
-
-  double SinDiff(const size_t site1, const size_t site2) const {
-      return ::SinDiff(config_[site1], config_[site2]);
   }
 
   /// interaction support upto J3, and Heisenberg or XY like (no anisotropy except SIA terms)

@@ -19,6 +19,7 @@ struct CaseParams : public CaseParamsParserBasic {
     J3 = ParseDoubleVec("J3");
     D = ParseDoubleVec("D");
     Sweeps = ParseInt("Sweeps");
+    SampleInterval = ParseInt("SampleInterval");
     beta = ParseDouble("beta");
   }
 
@@ -30,6 +31,7 @@ struct CaseParams : public CaseParamsParserBasic {
   std::vector<double> J3;
   std::vector<double> D;
   size_t Sweeps;
+  size_t SampleInterval;
   double beta;
 };
 

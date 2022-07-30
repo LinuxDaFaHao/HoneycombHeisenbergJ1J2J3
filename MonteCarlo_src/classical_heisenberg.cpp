@@ -86,6 +86,7 @@ int main(int argc, char **argv) {
       );
   MCParams mc_params;
   mc_params.sweeps = sweeps;
+  mc_params.sample_interval = params.SampleInterval;
   mc_params.print_interval = 100;
   mc_params.filename_postfix = "hei-rank" + std::to_string(world_rank)
       + params.Geometry

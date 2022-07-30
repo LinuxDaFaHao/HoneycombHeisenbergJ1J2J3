@@ -23,6 +23,7 @@ void DumpData(
 
 struct MCParams {
   size_t sweeps;
+  size_t sample_interval; // for how many times of wolf update between two samples. 0 means sweep lattice
   size_t print_interval;
   std::string filename_postfix;
 };
@@ -91,9 +92,12 @@ class WolfMCExecutor : public gqten::Executor {
  private:
 
   void WolfSweep_();
+  void WolfRandomSweep_(size_t sample_interval);
   void WolfGrowCluster(const LocalDOFT&, const size_t);
   bool WolfFlipCluster(const LocalDOFT&);
 
+  void MetropolisSweep();
+  bool MetropolisSingleStep(const size_t site);
 
   size_t geometry_id_; // 0: square, 1: honeycomb, 2: SVW
   bool interaction_isotropy_; // not consider SIA
@@ -167,7 +171,13 @@ void WolfMCExecutor<DimDof, NumOfCouplingType>::Execute() {
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
   gqten::Timer wolf_mc_execute_timer("wolf_mc_execute");
   for(size_t sweep = 0; sweep < mc_params.sweeps; sweep++) {
-    WolfSweep_();
+    MetropolisSweep();
+
+    if(mc_params.sample_interval > 0) {
+      WolfRandomSweep_(mc_params.sample_interval);
+    } else{
+      WolfSweep_();
+    }
 
     energy_.push_back(config_.Energy(*plattice_link_));
     for(size_t i = 0; i < DimDof; i++) {
@@ -222,16 +232,25 @@ void WolfMCExecutor<DimDof, NumOfCouplingType>::Execute() {
   dump_data_timer.PrintElapsed();
   SetStatus(gqten::FINISH);
 }
+
 template<size_t DimDof, size_t NumOfCouplingType>
 void WolfMCExecutor<DimDof, NumOfCouplingType>::WolfSweep_() {
   LocalDOF<DimDof> axis;
   for(size_t starting_site = 0; starting_site < phys_params.N; starting_site++) {
     axis.Random();
-//    axis.Show();
-//    config_.PrintSign(axis, phys_params.Lx);
     WolfGrowCluster(axis, starting_site);
     WolfFlipCluster(axis);
-//    config_.PrintSign(axis, phys_params.Lx);
+  }
+}
+
+template<size_t DimDof, size_t NumOfCouplingType>
+void WolfMCExecutor<DimDof, NumOfCouplingType>::WolfRandomSweep_(size_t sample_interval) {
+  LocalDOF<DimDof> axis;
+  std::uniform_int_distribution<int> u(0, phys_params.N-1);
+  for(size_t i = 0; i < sample_interval; i++) {
+    axis.Random();
+    WolfGrowCluster(axis, u(random_engine));
+    WolfFlipCluster(axis);
   }
 }
 
@@ -278,13 +297,6 @@ bool WolfMCExecutor<DimDof, NumOfCouplingType>::WolfFlipCluster(const LocalDOF<D
     return true;
   }
   double delta_e = config_.EnergyDifferenceFlipCluster(axis, cluster_, *plattice_link_);
-#ifndef NDEBUG
-  double e_i = config_.template Energy<NumOfCouplingType>(*plattice_link_);
-  auto config_copy = config_;
-  config_copy.Flip(axis, cluster_);
-  double e_f = config_copy.template Energy<NumOfCouplingType>(*plattice_link_);
-  double delta_e2 = e_f - e_i;
-#endif
   if(delta_e <= 0.0) {
     config_.Flip(axis, cluster_);
     return true;
@@ -292,6 +304,32 @@ bool WolfMCExecutor<DimDof, NumOfCouplingType>::WolfFlipCluster(const LocalDOF<D
     std::uniform_real_distribution<double> u(0, 1);
     if( u(random_engine) <= std::exp(- phys_params.beta * delta_e) ) {
       config_.Flip(axis, cluster_);
+      return true;
+    } else {
+      return false;
+    }
+  }
+}
+
+
+template<size_t DimDof, size_t NumOfCouplingType>
+void WolfMCExecutor<DimDof, NumOfCouplingType>::MetropolisSweep() {
+  for(size_t i = 0; i < phys_params.N; i++) {
+    MetropolisSingleStep(i);
+  }
+}
+
+template<size_t DimDof, size_t NumOfCouplingType>
+bool WolfMCExecutor<DimDof, NumOfCouplingType>::MetropolisSingleStep(const size_t site) {
+  LocalDOF<DimDof> flipto; flipto.Random();
+  double delta_e = config_.template EnergyDifferenceFlipSite<NumOfCouplingType>(site, flipto, *plattice_link_);
+  if(delta_e <=0.0) {
+    config_.SetSiteSpin(site, flipto);
+    return true;
+  } else {
+    std::uniform_real_distribution<double> u(0, 1);
+    if( u(random_engine) <= std::exp(- phys_params.beta * delta_e) ) {
+      config_.SetSiteSpin(site, flipto);
       return true;
     } else {
       return false;

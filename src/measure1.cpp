@@ -1,3 +1,6 @@
+/**
+ * 2 processes parallel
+ */
 #include "gqmps2/gqmps2.h"
 #include "gqten/gqten.h"
 #include <ctime>
@@ -5,12 +8,18 @@
 #include "operators.h"
 #include "params_case.h"
 #include "myutil.h"
+#include "my_measure.h"
+
 
 using namespace gqmps2;
 using namespace gqten;
 using namespace std;
 
 int main(int argc, char *argv[]) {
+  namespace mpi = boost::mpi;
+  mpi::environment env;
+  mpi::communicator world;
+
   CaseParams params(argv[1]);
   size_t Lx = params.Lx;
   size_t N= 2 * Lx * params.Ly;
@@ -29,15 +38,17 @@ int main(int argc, char *argv[]) {
 
   using FiniteMPST = gqmps2::FiniteMPS<TenElemT, U1QN>;
   FiniteMPST mps(sites);
-  mps.Load();
-  cout << "mps loaded" <<endl;
+//  mps.Load();
+//  cout << "mps loaded" <<endl;
+//  cout << "bond dimension of middle mps = " ;
+//  cout << mps[N/2].GetShape()[0] <<endl;
 
-
-  cout << "bond dimension of middle mps = " ;
-  cout << mps[N/2].GetShape()[0] <<endl;
   Timer one_site_timer("measure  one site operators");
-  MeasureOneSiteOp(mps, sz, "sz");
-  MeasureOneSiteOp(mps, sz_square, "sz_square");
+  if(world.rank() == 0){
+    MeasureOneSiteOp(mps, kMpsPath, sz, "sz");
+  } else{
+    MeasureOneSiteOp(mps, kMpsPath, sz_square, "sz_square");
+  }
 
   cout << "measured one point function.<====" <<endl;
   one_site_timer.PrintElapsed();

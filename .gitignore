@@ -41,6 +41,8 @@ release/
 
 # Project
 data/
+data2/
+data3/
 run/
 
 *.DS_Store
