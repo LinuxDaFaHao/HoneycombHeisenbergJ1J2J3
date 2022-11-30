@@ -17,7 +17,12 @@ struct CaseParams : public CaseParamsParserBasic {
     J1 = ParseDoubleVec("J1");
     J2 = ParseDoubleVec("J2");
     J3 = ParseDoubleVec("J3");
+    GS1 = ParseDoubleVec("GS1");
+    GS2 = ParseDoubleVec("GS2");
+    GS3 = ParseDoubleVec("GS3");
     D = ParseDoubleVec("D");
+    Warmup_Samples = ParseInt("Warmup_Samples");
+    ExchangeInterval = ParseInt("ExchangeInterval");
     Sweeps = ParseInt("Sweeps");
     SampleInterval = ParseInt("SampleInterval");
     beta = ParseDouble("beta");
@@ -29,7 +34,12 @@ struct CaseParams : public CaseParamsParserBasic {
   std::vector<double> J1;
   std::vector<double> J2;
   std::vector<double> J3;
+  std::vector<double> GS1;
+  std::vector<double> GS2;
+  std::vector<double> GS3;
   std::vector<double> D;
+  size_t Warmup_Samples;
+  size_t ExchangeInterval;
   size_t Sweeps;
   size_t SampleInterval;
   double beta;

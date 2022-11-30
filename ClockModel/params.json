@@ -1,0 +1,12 @@
+{
+  "CaseParams": {
+    "Geometry" : "Square",
+    "L": 64,
+    "J":  1.0,
+    "hp": 1,
+    "Sweeps": 30000,
+    "ClusterRadius": 5,
+    "beta":  2,
+    "SampleInterval": 20
+  }
+}

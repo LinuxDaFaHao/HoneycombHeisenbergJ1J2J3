@@ -6,7 +6,7 @@ AFMhoneycomb.table('matom')
 
 AFMhoneycomb.gencoupling('maxDistance',4);
 
-AFMhoneycomb.addmatrix('value',1,'label','J','color','SteelBlue')
+AFMhoneycomb.addmatrix('value',diag([1 1 1]),'label','J','color','SteelBlue')
 AFMhoneycomb.addmatrix('value',diag([0 0 0]),'label','D','color','r')
 
 AFMhoneycomb.addcoupling('mat','J','bond',1)
@@ -23,19 +23,19 @@ AFMhoneycomb.addaniso('D')
 honeySpec = AFMhoneycomb.spinwave({[0 0 0] [1/3 1/3 0] [1/2 0 0] [0 0 0] 500});
 % honeySpec = sw_neutron(honeySpec);
 % 
-% figure
-% sw_plotspec(honeySpec,'mode','disp','axLim',[0 6],'colormap',[0 0 0],'colorbar',false)
-% 
-% honeySpec = sw_egrid(honeySpec,'Evect',linspace(0,7,500),'component','Sperp');
-% 
-% 
-% set(gca,'fontsize',24);
-% set(gca,'linewidth',1.5);
-% set(get(gca,'Children'),'linewidth',2); % Set line width 1.5 pounds
-% ylabel('$\omega$(meV)','Interpreter','latex');
-% xlabel('Momentum $k$','Interpreter','latex');
-% set(get(gca,'XLabel'),'FontSize',24);
-% set(get(gca,'YLabel'),'FontSize',24);
+figure
+sw_plotspec(honeySpec,'mode','disp','axLim',[0 6],'colormap',[0 0 0],'colorbar',false)
+
+honeySpec = sw_egrid(honeySpec,'Evect',linspace(0,7,500),'component','Sperp');
+
+
+set(gca,'fontsize',24);
+set(gca,'linewidth',1.5);
+set(get(gca,'Children'),'linewidth',2); % Set line width 1.5 pounds
+ylabel('$\omega$(meV)','Interpreter','latex');
+xlabel('Momentum $k$','Interpreter','latex');
+set(get(gca,'XLabel'),'FontSize',24);
+set(get(gca,'YLabel'),'FontSize',24);
 
 % figure
 % sw_plotspec(honeySpec,'mode','color','axLim',[0 2],'dE',0.4)

@@ -50,7 +50,7 @@ for i = 1:datanum_of_structfactor
     dy = y1 - y2;
     sz_site1 = SzData(site1, 2);
     sz_site2 = SzData(site2, 2);
-    szsz_correlation(i) = SzSzCorrelationData{i}{2} - sz_site1 * sz_site2;
+    szsz_correlation(i) = SzSzCorrelationData{i}{2} ;%- sz_site1 * sz_site2;
     spsm_correlation(i) = SpSmCorrelationData{i}{2};
     smsp_correlation(i) = SmSpCorrelationData{i}{2};
     sdots_data(i) = szsz_correlation(i) + 1/2 * ( spsm_correlation(i) + smsp_correlation(i) );
@@ -74,7 +74,7 @@ imagesc(kx_set, ky_set,struct_factor);hold on;
 colorbar
 
 T1=text(0,0,'$\Gamma$');
-set(T1,'Interpreter','latex');set(T1,'Fontsize',36);
+set(T1,'Interpreter','latex');set(T1,'Fontsize',32);
 
 % T2=text(0, 
 

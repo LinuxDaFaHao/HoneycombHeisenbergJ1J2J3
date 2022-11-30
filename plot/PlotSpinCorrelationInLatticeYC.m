@@ -19,10 +19,10 @@ reference_point_color = [148 0 211]/256;
 
 
 
-% SzData = jsondecode(fileread([FileNamePrefix,'sz',FileNamePostfix]));
-% SzSzCorrelationData = jsondecode(fileread([FileNamePrefix,'zzsf',FileNamePostfix]));
-% SpSmCorrelationData = jsondecode(fileread([FileNamePrefix,'pmsf',FileNamePostfix]));
-% SmSpCorrelationData = jsondecode(fileread([FileNamePrefix,'mpsf',FileNamePostfix]));
+SzData = jsondecode(fileread([FileNamePrefix,'sz',FileNamePostfix]));
+SzSzCorrelationData = jsondecode(fileread([FileNamePrefix,'zzsf',FileNamePostfix]));
+SpSmCorrelationData = jsondecode(fileread([FileNamePrefix,'pmsf',FileNamePostfix]));
+SmSpCorrelationData = jsondecode(fileread([FileNamePrefix,'mpsf',FileNamePostfix]));
 
 N = Lx*Ly*2;
 

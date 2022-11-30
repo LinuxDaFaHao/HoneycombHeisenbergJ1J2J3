@@ -1,11 +1,9 @@
 geometry = 'XC';
 Ly = 6;
 Lx = 12;
-J1 = -5.3;
-J2 = -0.2;
-J3 = 38;
-Dzz = 0.113;
-Db = 20000;
+%J1 = -5.3; J2 = -0.2; J3 = 38; Dzz = 0.113; Db = 20000;
+J1 = -1; J2 = -0.04; J3 = 5.3; Dzz = 0.02; Db = 15000;
+
 FileNamePrefix = '../data2/';
 
 FileNamePostfix = ['HoneyHei',geometry, num2str(Ly), 'x', num2str(Lx),...

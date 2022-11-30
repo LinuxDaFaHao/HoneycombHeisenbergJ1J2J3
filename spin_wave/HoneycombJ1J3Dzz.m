@@ -11,6 +11,12 @@ AFMhoneycomb.addmatrix('value',-0.2,'label','J2','color','SteelBlue')
 AFMhoneycomb.addmatrix('value',28,'label','J3','color','y')
 AFMhoneycomb.addmatrix('value',diag([0 0 0.1]),'label','D','color','r')
 
+% AFMhoneycomb.addmatrix('value',-1,'label','J1','color','SteelBlue')
+% AFMhoneycomb.addmatrix('value',-0.04,'label','J2','color','SteelBlue')
+% AFMhoneycomb.addmatrix('value',5.3,'label','J3','color','y')
+% AFMhoneycomb.addmatrix('value',diag([0 0 0.02]),'label','D','color','r')
+
+
 AFMhoneycomb.addcoupling('mat','J1','bond',1)
 AFMhoneycomb.addcoupling('mat','J2','bond',2)
 AFMhoneycomb.addcoupling('mat','J3','bond',3)

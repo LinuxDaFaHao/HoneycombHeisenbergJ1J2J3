@@ -1,11 +1,11 @@
 geometry = 'XC';
 Ly = 6;
 Lx = 12;
-J1 = -5.3;
-J2 = -0.2;
-J3 = 38;
-Dzz = 0.113;
-Db = 20000;
+N = 2*Lx*Ly;
+% J1 = -5.3; J2 = -0.2; J3 = 38; Dzz = 0.113; Db = 20000;
+J1 = -1; J2 = -0.04; J3 = 5.3; Dzz = 0.02; Db = 15000;
+
+
 FileNamePrefix = '../data/';
 
 FileNamePostfix = ['HoneyHei',geometry, num2str(Ly), 'x', num2str(Lx),...
@@ -17,7 +17,8 @@ SzSzCorrelationData = jsondecode(fileread([FileNamePrefix,'zzsf',FileNamePostfix
 SpSmCorrelationData = jsondecode(fileread([FileNamePrefix,'pmsf',FileNamePostfix]));
 SmSpCorrelationData = jsondecode(fileread([FileNamePrefix,'mpsf',FileNamePostfix]));
 
-datanum_of_structfactor = numel(SzSzCorrelationData);
+% datanum_of_structfactor = numel(SzSzCorrelationData);
+datanum_of_structfactor = N/2*(N/2-1)/2;
 sdots_data = zeros(1, datanum_of_structfactor);
 szsz_correlation = zeros(1, datanum_of_structfactor);
 spsm_correlation = zeros(1, datanum_of_structfactor);
@@ -74,7 +75,7 @@ imagesc(kx_set, ky_set,struct_factor);hold on;
 colorbar
 
 T1=text(0,0,'$\Gamma$');
-set(T1,'Interpreter','latex');set(T1,'Fontsize',36);
+set(T1,'Interpreter','latex');set(T1,'Fontsize',32);
 
 % T2=text(0,
 
