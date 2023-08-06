@@ -1,6 +1,6 @@
-L_set = [32,32,32];
-beta_min_set = [0.06,0.075,0.075,0.05,0.05,0.05];
-beta_max_set = [1.1,0.2,0.1,0.125,0.125,0.125];
+L_set = [16,24,32,32,32,48,64];
+beta_min_set = [0.06,0.06,0.075,0.075,0.07,0.07,0.07];
+beta_max_set = [0.2,0.2,0.2,0.1,0.1,0.2,0.2];
 
 
 geometry = 'Honeycomb';
@@ -8,7 +8,13 @@ J1 = 5.3;
 J2 = 0.2;
 J3 = -28;
 Dzz = -0.113;
-thread_num_set = [96,96,48];
+thread_num_set = [96,96,96,48,48,96,96];
+% marker_color = ['b','r','g','g','g','y'];
+marker_color = {[0.0,0.45,0.74],[0.85,0.33,0.10],[0.47,0.67,0.19], ...
+    [0.47,0.67,0.19],...
+    [0.47,0.67,0.19],...
+    [0.93,0.69,0.13],...
+    [0.30,0.75,0.93]};
 prefix = '../../data/';
 
 eVtoK_const = 11.606;
@@ -77,40 +83,53 @@ for i = 1:numel(L_set)
     fread(file_id, 1, 'char');
     c3_order_parameter_chi = fread(file_id, thread_num, 'double');
     fread(file_id, 1, 'char');
+    complex_order_parameter = fread(file_id, thread_num, 'double');
+    fread(file_id, 1, 'char');
+    complex_order_parameter_binder_ratio = fread(file_id, thread_num, 'double');
+    fread(file_id, 1, 'char');
     
-%     complex_order_parameter = fread(file_id, thread_num, 'double');
-%     fread(file_id, 1, 'char');
-%     complex_order_parameter_binder_ratio = fread(file_id, thread_num, 'double');
-%     fread(file_id, 1, 'char');
-    %
+    binder_ratio_c3 = fread(file_id, thread_num, 'double');
+    fread(file_id, 1, 'char');
+    
     fclose(file_id);
-%     plot(T_set, (af_magnetization_1+af_magnetization_2+af_magnetization_3)/3,'-o');hold on;
-    [T_set,I] = sort(T_set);
-%     plot(T_set, af_magnetization_1x(I) ...
-%          + af_magnetization_1y(I) ...
-%          + af_magnetization_2x(I) ...
-%          + af_magnetization_2y(I) ...
-%          + af_magnetization_3x(I) ...
-%          + af_magnetization_3y(I) ,'^');hold on;
-
-%     plot(T_set, af_magnetization_chix(I) ...
-%         + af_magnetization_chiy(I) ...
-%         + af_magnetization_chiz(I), '-o');hold on;
-
-%     plot(T_set, af_magnetization_chi_b,'o');hold on;
-%       plot(T_set, af_magnetization_binder_ratio(I), '-o');hold on;
-%        plot(T_set, specific_heat(I), 'o');hold on;
-     plot(T_set, c3_order_parameter_chi(I), 'x');hold on;
-    %     
+    %     [T_set,I] = sort(T_set);
+    %     plot(T_set, af_magnetization_1x(I) ...
+    %          + af_magnetization_1y(I) ...
+    %          + af_magnetization_2x(I) ...
+    %          + af_magnetization_2y(I) ...
+    %          + af_magnetization_3x(I) ...
+    %          + af_magnetization_3y(I) ,'^');hold on;
+    
+    %     plot(T_set, af_magnetization_chix(I) ...
+    %         + af_magnetization_chiy(I) ...
+    %         + af_magnetization_chiz(I), '-o');hold on;
+    %
+%     h(i) = semilogy(T_set, af_magnetization_chi_b,'o','color',marker_color{i});hold on;
+%     plot(T_set, af_magnetization_binder_ratio(I), '-o');hold on;
+%     plot(T_set, specific_heat, 'o');hold on;
+%      h(i) = semilogy(T_set, c3_order_parameter_chi, 'x','color',marker_color{i});hold on;
+      h(i) = plot(T_set, c3_order_parameter, 'x','color',marker_color{i});hold on;
+%      h(i) = plot(T_set, binder_ratio_c3, 'x','color',marker_color{i});hold on;
+%     plot(T_set, energy, 'o');hold on;
+% plot(T_set, stiffness, 'o');hold on;
+%     
 %     beta2 = beta_set(1:end-1) + diff(beta_set)/2;
 %     C = -beta2.^2 .* (diff(energy)./diff(beta_set));
 %     plot(1./beta2, C,'-x');hold on;
 end
 
+l=legend([h(1),h(2),h(3),h(6),h(7)],{'16','24','32','48','64'});
+
+set(l,'Box','off');set(l,'Interpreter','latex');
+set(l,'Fontsize',24);
+set(l,'Location','SouthWest');
+
 set(gca,'fontsize',24);
 set(gca,'linewidth',1.5);
 set(get(gca,'Children'),'linewidth',2); % Set line width 1.5 pounds
 xlabel('$T(K)$','Interpreter','latex');
-ylabel('specific heat','Interpreter','latex');
+% ylabel('AF susceptibility','Interpreter','latex');
+% ylabel('$C_3$ order parameter','Interpreter','latex');
+ylabel('binder ratio of $C_3$ order parameter','Interpreter','latex');
 set(get(gca,'XLabel'),'FontSize',24);
 set(get(gca,'YLabel'),'FontSize',24);

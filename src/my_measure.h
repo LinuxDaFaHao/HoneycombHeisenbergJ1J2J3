@@ -199,141 +199,137 @@ inline MeasuRes<TenElemT> MeasureTwoSiteOp(
     const std::vector<MeasureGroupTask> &measure_tasks,
     const std::string &res_file_basename,
     const boost::mpi::communicator &world,
-    const GQTensor<TenElemT, QNT> &inst = GQTensor < TenElemT, QNT
->()
+    const GQTensor<TenElemT, QNT> &inst = GQTensor<TenElemT, QNT
+    >()
 ) {
-const size_t mpi_size = world.size();
-const size_t mpi_rank = world.rank();
+  const size_t mpi_size = world.size();
+  const size_t mpi_rank = world.rank();
 //  const std::string mps_path = kMpsPath;
 
-const size_t group_size = measure_tasks.size();
-size_t total_measure_event_size = 0;
-std::vector<size_t> measure_event_size_set(group_size), measure_event_accumulate_size_set(group_size);
-for (
-size_t i = 0;
-i<measure_tasks.
-size();
-i++) {
-measure_event_size_set[i] = measure_tasks[i].
-TaskSize();
-total_measure_event_size += measure_tasks[i].
-TaskSize();
-measure_event_accumulate_size_set[i] =
-total_measure_event_size;
-}
-assert(measure_event_accumulate_size_set.back() == total_measure_event_size);
-const size_t
-    measure_event_per_node = (total_measure_event_size - 1) / mpi_size + 1; // round up the quotient to an integer
-const size_t measure_event_start = measure_event_per_node * mpi_rank;
-const size_t measure_event_end = std::min(total_measure_event_size, measure_event_per_node * (mpi_rank + 1));
+  const size_t group_size = measure_tasks.size();
+  size_t total_measure_event_size = 0;
+  std::vector<size_t> measure_event_size_set(group_size), measure_event_accumulate_size_set(group_size);
+  for (
+      size_t i = 0;
+      i < measure_tasks.
+          size();
+      i++) {
+    measure_event_size_set[i] = measure_tasks[i].
+        TaskSize();
+    total_measure_event_size += measure_tasks[i].
+        TaskSize();
+    measure_event_accumulate_size_set[i] =
+        total_measure_event_size;
+  }
+  assert(measure_event_accumulate_size_set.back() == total_measure_event_size);
+  const size_t
+      measure_event_per_node = (total_measure_event_size - 1) / mpi_size + 1; // round up the quotient to an integer
+  const size_t measure_event_start = measure_event_per_node * mpi_rank;
+  const size_t measure_event_end = std::min(total_measure_event_size, measure_event_per_node * (mpi_rank + 1));
 
-size_t group_start(group_size *
-2),
-group_end(group_size
-* 2); // every node do task [group_start, group_end)
-for (
-size_t i = 0;
-i<group_size;
-i++) {
-if (measure_event_accumulate_size_set[i] >= measure_event_start) {
-group_start = i;
-break;
-}
-}
-for (
-size_t i = 0;
-i<group_size;
-i++) {
-if (measure_event_accumulate_size_set[i] >= measure_event_end) {
-group_end = i;
-break;
-}
-}
-assert(group_start < group_size);
-assert(group_end < group_size);
+  size_t group_start(group_size *
+      2),
+      group_end(group_size * 2); // every node do task [group_start, group_end)
+  for (size_t i = 0; i < group_size; i++) {
+    if (measure_event_accumulate_size_set[i] >= measure_event_start) {
+      group_start = i;
+      break;
+    }
+  }
+  for (size_t i = 0; i < group_size; i++) {
+    if (measure_event_accumulate_size_set[i] >= measure_event_end) {
+      group_end = i;
+      break;
+    }
+  }
+  assert(group_start < group_size);
+  assert(group_end < group_size);
+  if (mpi_rank == mpi_size - 1) {
+    group_end += 1;
+  }
 
-MeasuRes<TenElemT> measure_res;
-for (
-size_t i = group_start;
-i<group_end;
-i++) {
-auto group_res =
-    MeasureTwoSiteOpGroup(mps, phys_ops1, phys_ops2, measure_tasks[i].site1, measure_tasks[i].site2_set, inst);
-measure_res.
-insert(
-    measure_res
-.
-end(),
-    group_res
-.
-begin(),
-    group_res
-.
-end()
-);
-}
-const size_t has_done_measure_event_num = measure_res.size();
+  MeasuRes<TenElemT> measure_res;
+  for (
+      size_t i = group_start;
+      i < group_end;
+      i++) {
+    auto group_res =
+        MeasureTwoSiteOpGroup(mps, phys_ops1, phys_ops2, measure_tasks[i].site1, measure_tasks[i].site2_set, inst);
+    measure_res.
+        insert(
+        measure_res
+            .
+                end(),
+        group_res
+            .
+                begin(),
+        group_res
+            .
+                end()
+    );
+  }
+  const size_t has_done_measure_event_num = measure_res.size();
 
-if (mpi_rank == 0) {
-measure_res.
-resize(total_measure_event_size);
-size_t idx = 0;
-for (
-size_t i = 0;
-i<measure_tasks.
-size();
-i++) {
-for (
-size_t j = 0;
-j<measure_tasks[i].
-TaskSize();
-j++) {
-const size_t site1 = measure_tasks[i].site1;
-const size_t site2 = measure_tasks[i].site2_set[j];
-measure_res[idx].
-sites = {site1, site2};
-idx++;
-};
-}
+  if (mpi_rank == 0) {
+    measure_res.
+        resize(total_measure_event_size);
+    size_t idx = 0;
+    for (
+        size_t i = 0;
+        i < measure_tasks.
+            size();
+        i++) {
+      for (
+          size_t j = 0;
+          j < measure_tasks[i].
+              TaskSize();
+          j++) {
+        const size_t site1 = measure_tasks[i].site1;
+        const size_t site2 = measure_tasks[i].site2_set[j];
+        measure_res[idx].
+            sites = {site1, site2};
+        idx++;
+      };
+    }
 
-idx = has_done_measure_event_num;
-for (
-size_t recv_group = 1;
-recv_group<mpi_size;
-recv_group++) {
-std::vector<TenElemT> recved_avgs;
-world.
-recv(recv_group, recv_group, recved_avgs
-);
-for (
-size_t i = 0;
-i<recved_avgs.
-size();
-i++) {
-measure_res[idx].
-avg = recved_avgs[i];
-idx++;
-}
-}
-DumpMeasuRes(measure_res, res_file_basename
-);
+    idx = has_done_measure_event_num;
+    for (
+        size_t recv_group = 1;
+        recv_group < mpi_size;
+        recv_group++) {
+      std::vector<TenElemT> recved_avgs;
+      world.
+          recv(recv_group, recv_group, recved_avgs
+      );
+      for (
+          size_t i = 0;
+          i < recved_avgs.
+              size();
+          i++) {
+        measure_res[idx].
+            avg = recved_avgs[i];
+        idx++;
+      }
+    }
+    DumpMeasuRes(measure_res, res_file_basename
+    );
 
-} else {
-std::vector<TenElemT> avgs;
-avgs.
-reserve(has_done_measure_event_num);
-for (
-size_t i = 0;
-i<has_done_measure_event_num;
-i++) {
-avgs.
-push_back(measure_res[i]
-.avg);
-}
-world.send(0, mpi_rank, avgs);
-}
-return
-measure_res;
+  } else {
+    std::vector<TenElemT> avgs;
+    avgs.
+        reserve(has_done_measure_event_num);
+    for (
+        size_t i = 0;
+        i < has_done_measure_event_num;
+        i++) {
+      avgs.
+          push_back(measure_res[i]
+                        .avg);
+    }
+    world.send(0, mpi_rank, avgs);
+  }
+  return
+      measure_res;
 }
 
 /**
@@ -672,8 +668,8 @@ inline MeasuRes<TenElemT> MeasureElectronPhonon4PointFunction(
     size_t site2 = sites_set_group[0][1];
     assert(sites_set_group.size() == measure_event_per_group_num);
     for (auto iter = sites_set_group.begin(); iter < sites_set_group.cend(); iter++) {
-      assert((*iter)[0] = site1);
-      assert((*iter)[1] = site2);
+      assert((*iter)[0] == site1);
+      assert((*iter)[1] == site2);
       //TODO: check order: a. site1<site2<3<4 b. for every 3,4, ascending order
     }
   }

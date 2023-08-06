@@ -78,7 +78,8 @@ for system_ind = 1:numel(L_set)
     end
 end
 T_set = eVtoK_const./beta_set;
-   plot(T_set, specific_heat_set, '-o');hold on;
+%    plot(T_set, specific_heat_set, '-o');hold on;
+% plot(T_set, stiffness_set,'-o');hold on;
 
 % plot(T_set, energy_set,'-o');hold on;
 % plot(T_set, chix_set+ chiy_set + chiz_set,'-o'); hold on;
@@ -86,27 +87,29 @@ T_set = eVtoK_const./beta_set;
 % h2 = plot(T_set, 2./beta_set/pi,'-.'); hold on;
 % % l=legend([h0,h1,h2],{'$\rho_s = 8T/\pi$','$\rho_s = 4T/\pi$','$\rho_s = 2T/\pi$'});
 % l=legend([h2],{'$\rho_s = \frac{2T}{\pi}$'});
+% l=legend('32','48','64','128');
 % set(l,'Box','off');set(l,'Interpreter','latex');
-% set(l,'Fontsize',36);
+% set(l,'Fontsize',24);
 % set(l,'Location','SouthWest');
 
 % T=text(50,10,['$L=32, 48, 64, 72, 100$']);
 % set(T,'Interpreter','latex');set(T,'Fontsize',24);
 
 
-% plot(T_set, msquare_set,'-x');hold on;
+plot(T_set, 2*sqrt(msquare_set),'-x');hold on;
 % minf_set = size(1, numel(T_set));
 % for i = 1:size(msquare_set, 2) % for every temperature
-%      y_data = msquare_set(extrapolation_selected_index,i);
-%      x_data = 1./L_set(extrapolation_selected_index)';
+%      y_data = sqrt(msquare_set(:,i));
+%      x_data = 1./L_set';
 %      p = fit(x_data,y_data,'poly2');
-%      minf_set(i) = p.p3;
+%      minf_set(i) = max(p.p3,0.0);
 % end
 % plot(T_set, minf_set,'-o');hold on;
-% l=legend('$L=32$','$48$','$64$','$128$');%,'extrapolate to $L=\infty$'
-% set(l,'Box','off');set(l,'Interpreter','latex');
-% set(l,'Fontsize',24);
-% set(l,'Location','SouthWest');
+
+l=legend('$L=32$','$48$','$64$','$128$');%,'extrapolate to $L=\infty$'
+set(l,'Box','off');set(l,'Interpreter','latex');
+set(l,'Fontsize',24);
+set(l,'Location','SouthWest');
 % 
 % Tc = 152;
 % T_subset = T_set(T_set<Tc);
@@ -121,13 +124,14 @@ set(gca,'linewidth',1.5);
 set(get(gca,'Children'),'linewidth',2); % Set line width 1.5 pounds
 xlabel('$T(K)$','Interpreter','latex');
 %  ylabel('spin stiffness $\rho_s$(meV)','Interpreter','latex');
-% ylabel('zig-zag AF magnetization $M^2(Q)$','Interpreter','latex');
-ylabel('specific heat $C$','Interpreter','latex');
+% ylabel('AF magnetization $M_{x}^2(Q)+M_{y}^2(Q)$','Interpreter','latex');
+% ylabel('specific heat $C (k_B)$','Interpreter','latex');
+ylabel('inplane AF magnetization $M(\mu_B)$','Interpreter','latex');
 
 set(get(gca,'XLabel'),'FontSize',24);
 set(get(gca,'YLabel'),'FontSize',24);
 % set(gca, 'Ylim',[0,inf]);
-% set(gca, 'Xlim',[0,200]);
+% set(gca, 'Xlim',[100,inf]);
 
 
 % Tc_set = [161.98, 157.42, 155.24, 154.46,153.06];%K

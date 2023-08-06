@@ -70,7 +70,7 @@ for i = 1:numel(L_set)
     fclose(file_id);
 %     plot(T_set, (af_magnetization_1+af_magnetization_2+af_magnetization_3)/3,'-o');hold on;
     [T_set,I] = sort(T_set);
-    plot(T_set, af_magnetization_binder_ratio(I), '-o');hold on;
+%     plot(T_set, af_magnetization_binder_ratio(I), '-o');hold on;
 
 %      plot(T_set, af_magnetization_binder_ratio, '-o');hold on;
 %       plot(T_set, specific_heat, '-o');hold on;

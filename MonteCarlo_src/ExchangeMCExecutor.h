@@ -218,6 +218,69 @@ struct StatisticResults {
     ofs.close();
   }
 
+  void LoadData(const std::string &filename) {
+    std::ifstream ifs(filename, std::ifstream::binary);
+    ifs.read((char*) beta.data(), beta.size() * sizeof(double));
+    ifs.seekg(1, std::ios::cur);    // Skip the line break.
+    ifs.read((char*) energy.data(), energy.size() * sizeof(double));
+    ifs.seekg(1, std::ios::cur);    // Skip the line break.
+    ifs.read((char*) specific_heat.data(), specific_heat.size() * sizeof(double));
+    ifs.seekg(1, std::ios::cur);    // Skip the line break.
+    ifs.read((char*) stiffness.data(), stiffness.size() * sizeof(double));
+    ifs.seekg(1, std::ios::cur);    // Skip the line break.
+
+    for (size_t dof = 0; dof < DimDof; dof++) {
+      ifs.read((char *) zigzag_af1_magnetization_square[dof].data(),
+                zigzag_af1_magnetization_square[dof].size() * sizeof(double));
+      ifs.seekg(1, std::ios::cur);    // Skip the line break.
+    }
+    for (size_t dof = 0; dof < DimDof; dof++) {
+      ifs.read((char *) zigzag_af2_magnetization_square[dof].data(),
+                zigzag_af2_magnetization_square[dof].size() * sizeof(double));
+      ifs.seekg(1, std::ios::cur);    // Skip the line break.
+    }
+    for (size_t dof = 0; dof < DimDof; dof++) {
+      ifs.read((char *) zigzag_af3_magnetization_square[dof].data(),
+                zigzag_af3_magnetization_square[dof].size() * sizeof(double));
+      ifs.seekg(1, std::ios::cur);    // Skip the line break.
+    }
+    for (size_t dof = 0; dof < DimDof; dof++) {
+      ifs.read((char *) zigzag_magnetization_susceptibility[dof].data(),
+                zigzag_magnetization_susceptibility[dof].size() * sizeof(double));
+      ifs.seekg(1, std::ios::cur);    // Skip the line break.
+    }
+    ifs.read((char *) binder_ratio_zigzag_direction1.data(),
+              binder_ratio_zigzag_direction1.size() * sizeof(double));
+    ifs.seekg(1, std::ios::cur);    // Skip the line break.
+    ifs.read((char *) binder_ratio_zigzag_direction2.data(),
+              binder_ratio_zigzag_direction2.size() * sizeof(double));
+    ifs.seekg(1, std::ios::cur);    // Skip the line break.
+    ifs.read((char *) binder_ratio_zigzag_direction3.data(),
+              binder_ratio_zigzag_direction3.size() * sizeof(double));
+    ifs.seekg(1, std::ios::cur);    // Skip the line break.
+    ifs.read((char *) binder_ratio_zigzag_af.data(), binder_ratio_zigzag_af.size() * sizeof(double));
+    ifs.seekg(1, std::ios::cur);    // Skip the line break.
+    ifs.read((char *) zigzag_magnetization_susceptibility_b.data(),
+              zigzag_magnetization_susceptibility_b.size() * sizeof(double));
+    ifs.seekg(1, std::ios::cur);    // Skip the line break.
+
+    ifs.read((char *) c3_order_parameter_square.data(), c3_order_parameter_square.size() * sizeof(double));
+    ifs.seekg(1, std::ios::cur);    // Skip the line break.
+    ifs.read((char *) c3_order_parameter_susceptibility.data(),
+              c3_order_parameter_susceptibility.size() * sizeof(double));
+    ifs.seekg(1, std::ios::cur);    // Skip the line break.
+    ifs.read((char *) complex_order_parameter.data(), complex_order_parameter.size() * sizeof(double));
+    ifs.seekg(1, std::ios::cur);    // Skip the line break.
+    ifs.read((char *) binder_ratio_complex_order_parameter.data(),
+              binder_ratio_complex_order_parameter.size() * sizeof(double));
+    ifs.seekg(1, std::ios::cur);    // Skip the line break.
+
+    ifs.read((char *) binder_ratio_c3.data(),
+              binder_ratio_c3.size() * sizeof(double));
+    ifs.seekg(1, std::ios::cur);    // Skip the line break.
+    ifs.close();
+  }
+
   std::vector<double> beta;
   // the index of vectors corresponds to the beta
   std::vector<double> energy;         // energy per site
