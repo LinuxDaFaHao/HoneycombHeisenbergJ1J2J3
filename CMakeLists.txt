@@ -19,24 +19,24 @@ if(${CMAKE_BUILD_TYPE} MATCHES Debug)
     set(CMAKE_VERBOSE_MAKEFILE ON)
 endif()
 
-option(GQTEN_TIMING_MODE "Timing mode." OFF)
-if(GQTEN_TIMING_MODE)
-    add_definitions(-DGQTEN_TIMING_MODE)
+option(QLTEN_TIMING_MODE "Timing mode." OFF)
+if(QLTEN_TIMING_MODE)
+    add_definitions(-DQLTEN_TIMING_MODE)
 endif()
 
-option(GQMPS2_TIMING_MODE "Timing mode." OFF)
-if(GQMPS2_TIMING_MODE)
-    add_definitions(-DGQMPS2_TIMING_MODE)
+option(QLMPS_TIMING_MODE "Timing mode." OFF)
+if(QLMPS_TIMING_MODE)
+    add_definitions(-DQLMPS_TIMING_MODE)
 endif()
 
-option(GQTEN_MPI_TIMING_MODE "Timing mode." OFF)
-if(GQTEN_MPI_TIMING_MODE)
-    add_definitions(-DGQTEN_MPI_TIMING_MODE)
+option(QLTEN_MPI_TIMING_MODE "Timing mode." OFF)
+if(QLTEN_MPI_TIMING_MODE)
+    add_definitions(-DQLTEN_MPI_TIMING_MODE)
 endif()
 
-option(GQMPS2_MPI_TIMING_MODE "Timing mode." OFF)
-if(GQMPS2_MPI_TIMING_MODE)
-    add_definitions(-DGQMPS2_MPI_TIMING_MODE)
+option(QLMPS_MPI_TIMING_MODE "Timing mode." OFF)
+if(QLMPS_MPI_TIMING_MODE)
+    add_definitions(-DQLMPS_MPI_TIMING_MODE)
 endif()
 
 option(COMPILE_FIX_CODE "compile the fixing code" OFF)
@@ -49,7 +49,7 @@ add_definitions(-Wall -g)
 
 
 
-if(APPLE)
+if (APPLE AND CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
     if(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
         set(MATH_LIB_COMPILE_FLAGS "-I$ENV{MKLROOT}/include")
         #Need test
@@ -65,6 +65,20 @@ if(APPLE)
         # Note as of Intel oneAPI 2021.2, "source /opt/intel/oneapi/compiler/latest/env/vars.sh"
         set(MATH_LIB_LINK_FLAGS $ENV{MKLROOT}/lib/libmkl_intel_lp64.a $ENV{MKLROOT}/lib/libmkl_intel_thread.a $ENV{MKLROOT}/lib/libmkl_core.a -L$ENV{MKLROOT}/lib -L$ENV{CMPLR_ROOT}/mac/compiler/lib/ -Wl, -rpath $ENV{CMPLR_ROOT}/mac/compiler/lib/libiomp5.dylib -liomp5 -lpthread -lm -ldl)
     endif()
+elseif (APPLE) #ARM
+    add_definitions(-DUSE_OPENBLAS)
+    set(BLA_VENDOR OpenBLAS)
+    #        FIND_PACKAGE(BLAS REQUIRED)
+    #        FIND_PACKAGE(LAPACK REQUIRED)
+    set(OpenBLAS_ROOT "/opt/homebrew/opt/openblas/")
+    set(Lapack_ROOT "/opt/homebrew/opt/lapack")
+    message(${OpenBLAS_ROOT})
+    set(OpenBLAS_INCLUDE_DIRS "${OpenBLAS_ROOT}/include")
+    set(OpenBLAS_LIBRARIES "${OpenBLAS_ROOT}/lib/libblas.dylib")
+    message(${OpenBLAS_LIBRARIES})
+    set(MATH_LIB_COMPILE_FLAGS -I${OpenBLAS_INCLUDE_DIRS} -pthread)
+    set(MATH_LIB_LINK_FLAGS ${OpenBLAS_LIBRARIES} ${OpenBLAS_ROOT}/lib/liblapack.dylib -lm -lpthread -ldl -fopenmp -lclapack)
+
 elseif(UNIX)
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "~/.local/")
     message("CMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}")
@@ -87,8 +101,8 @@ endif()
 
 
 
-find_path(TENSOR_HEADER_PATH "gqten")
-find_path(MPS2_HEADER_PATH "gqmps2")
+find_path(TENSOR_HEADER_PATH "QLTEN")
+find_path(MPS2_HEADER_PATH "QLMPS")
 find_package(hptt)
 find_package(Boost
         1.76.0

@@ -8,14 +8,14 @@
 #include "DefSpinOne.h"
 #include "operators.h"
 #include "params_case.h"
-#include "gqmps2/gqmps2.h"
+#include "qlmps/qlmps.h"
 #include "honeycomb_lattice.h"
 
 #include <ctime>
 
 using namespace std;
-using namespace gqten;
-using namespace gqmps2;
+using namespace qlten;
+using namespace qlmps;
 
 
 int main(int argc, char *argv[]) {
@@ -35,14 +35,14 @@ int main(int argc, char *argv[]) {
   startTime = clock();
 
 
-  if (!IsPathExist(kMpoPath)) {
-    CreatPath(kMpoPath);
+  if (!IsPathExist(qlmps::kMpoPath)) {
+    CreatPath(qlmps::kMpoPath);
   }
 
   using namespace spin_one_model;
   OperatorInitial();
   const SiteVec<TenElemT, U1QN> sites=SiteVec<TenElemT, U1QN>(N, pb_out);
-  gqmps2::MPOGenerator<TenElemT, U1QN> mpo_gen(sites, qn0);
+  qlmps::MPOGenerator<TenElemT, U1QN> mpo_gen(sites, qn0);
 
   HoneycombLattice* plattice = nullptr;
   if(params.Geometry == "XC"){
@@ -103,9 +103,9 @@ int main(int argc, char *argv[]) {
   cout << "FiniteMPO generated." << endl;
 
   for(size_t i=0; i<mpo.size();i++){
-    std::string filename = kMpoPath + "/" +
-        kMpoTenBaseName + std::to_string(i)
-        + "." + kGQTenFileSuffix;
+    std::string filename = qlmps::kMpoPath + "/" +
+        qlmps::kMpoTenBaseName + std::to_string(i)
+        + "." + qlmps::kQLTenFileSuffix;
     mpo.DumpTen(i,filename);
   }
 

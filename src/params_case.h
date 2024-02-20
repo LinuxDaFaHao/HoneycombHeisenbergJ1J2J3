@@ -9,8 +9,8 @@
 #ifndef HONEYCOMBHEISENBERGJ1J2J3_SRC_PARAMS_CASE_H
 #define HONEYCOMBHEISENBERGJ1J2J3_SRC_PARAMS_CASE_H
 
-#include "gqmps2/case_params_parser.h"
-using gqmps2::CaseParamsParserBasic;
+#include "qlmps/case_params_parser.h"
+using qlmps::CaseParamsParserBasic;
 
 struct CaseParams : public CaseParamsParserBasic {
   CaseParams(const char *pf) : CaseParamsParserBasic(pf) {
