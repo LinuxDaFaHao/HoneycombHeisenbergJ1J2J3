@@ -14,8 +14,8 @@
 #ifndef HONEYCOMBHEISENBERG_XTRG_COMMON_XTRG_H
 #define HONEYCOMBHEISENBERG_XTRG_COMMON_XTRG_H
 
-#include "gqten/gqten.h"
-#include "gqmps2/gqmps2.h"
+#include "qlten/qlten.h"
+#include "qlmps/qlmps.h"
 
 
 #include "mpopp.h"

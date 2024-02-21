@@ -11,8 +11,8 @@
  */
 
 
-#include "gqmps2/gqmps2.h"
-#include "gqten/gqten.h"
+#include "qlmps/qlmps.h"
+#include "qlten/qlten.h"
 #include "../XTRG_common/xtrg.h"
 
 #include "params_case.h"
@@ -37,18 +37,18 @@ int main(int argc, char *argv[]) {
   std::cout << "Model parameter: J1 = " << J1 << ",\t J2 = " << J2 << ",\t J3 = " << J3 << endl;
   clock_t startTime,endTime;
   startTime = clock();
-  gqten::hp_numeric::SetTensorTransposeNumThreads(params.Threads);
-  gqten::hp_numeric::SetTensorManipulationThreads(params.Threads);
+  qlten::hp_numeric::SetTensorTransposeNumThreads(params.Threads);
+  qlten::hp_numeric::SetTensorManipulationThreads(params.Threads);
 
   using namespace spin_one_model;
-  const gqmps2::SiteVec<TenElemT, U1QN> sites(N, pb_out);
-  gqmps2::MPOGenerator<TenElemT, U1QN> mpo_gen(sites, qn0);
+  const qlmps::SiteVec<TenElemT, U1QN> sites(N, pb_out);
+  qlmps::MPOGenerator<TenElemT, U1QN> mpo_gen(sites, qn0);
 
   xtrg::FiniteMPO<TenElemT, U1QN> hamiltonian(N), density_matrix(N);
-  if (gqmps2::IsPathExist(kMpoPath)) {
+  if (qlmps::IsPathExist(kMpoPath)) {
     for(size_t i=0; i < N;i++){
       std::string filename = kMpoPath + "/" +
-          kMpoTenBaseName + std::to_string(i) + "." + gqmps2::kGQTenFileSuffix;
+          kMpoTenBaseName + std::to_string(i) + "." + qlmps::kqltenFileSuffix;
       hamiltonian.LoadTen(i,filename);
       density_matrix.alloc(i);
     }

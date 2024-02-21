@@ -17,10 +17,10 @@
 #ifndef HONEYCOMBHEISENBERG_XTRG_COMMON_XTRG_PARAMS_H
 #define HONEYCOMBHEISENBERG_XTRG_COMMON_XTRG_PARAMS_H
 
-#include "gqmps2/consts.h"
+#include "qlmps/consts.h"
 
 namespace xtrg {
-using namespace gqmps2;
+using namespace qlmps;
 
 const size_t kMaxTaylorExpansionOrder = 30;
 const double kToleranceTaylorExpansionError = 1e-13;

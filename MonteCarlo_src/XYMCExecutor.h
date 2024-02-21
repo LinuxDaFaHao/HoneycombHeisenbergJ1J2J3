@@ -9,8 +9,8 @@
 #include <fstream>
 #include <numeric>
 #include <algorithm>
-#include "gqten/framework/bases/executor.h"
-#include "gqten/utility/timer.h"
+#include "qlten/framework/bases/executor.h"
+#include "qlten/utility/timer.h"
 #include "swcluster.h"
 #include "lattice_link.h"
 #include "lattice_config.h"
@@ -65,7 +65,7 @@ struct XYPhysParams {
 };
 
 template<size_t NumOfCouplingType>
-class XYMCExecutor : public gqten::Executor {
+class XYMCExecutor : public qlten::Executor {
   using LocalDOFT = LocalDOF<dim_dof_xy>;
  public:
   XYMCExecutor(const MCParams &,
@@ -121,7 +121,7 @@ class XYMCExecutor : public gqten::Executor {
 template<size_t NumOfCouplingType>
 XYMCExecutor<NumOfCouplingType>::XYMCExecutor(const MCParams &mc_params,
                                               const XYPhysParams<dim_dof_xy, NumOfCouplingType> &phys_params) :
-    gqten::Executor(),
+    qlten::Executor(),
     mc_params(mc_params),
     phys_params(phys_params),
     config_(phys_params.N),
@@ -165,15 +165,15 @@ XYMCExecutor<NumOfCouplingType>::XYMCExecutor(const MCParams &mc_params,
   correlation_lover2_.reserve(sweeps);
   correlation_lover4_.reserve(sweeps);
 
-  SetStatus(gqten::INITED);
+  SetStatus(qlten::INITED);
 }
 
 template<size_t NumOfCouplingType>
 void XYMCExecutor<NumOfCouplingType>::Execute() {
-  SetStatus(gqten::EXEING);
+  SetStatus(qlten::EXEING);
   int world_rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-  gqten::Timer wolf_mc_execute_timer("wolf_mc_execute");
+  qlten::Timer wolf_mc_execute_timer("wolf_mc_execute");
   for (size_t sweep = 0; sweep < mc_params.sweeps; sweep++) {
     MetropolisSweep_();
 
@@ -195,7 +195,7 @@ void XYMCExecutor<NumOfCouplingType>::Execute() {
 
   StatisticAndDumpData_();
 
-  SetStatus(gqten::FINISH);
+  SetStatus(qlten::FINISH);
 }
 
 template<size_t NumOfCouplingType>
@@ -327,7 +327,7 @@ void XYMCExecutor<NumOfCouplingType>::Measure_(size_t sweep) {
 
 template<size_t NumOfCouplingType>
 void XYMCExecutor<NumOfCouplingType>::StatisticAndDumpData_() {
-  gqten::Timer dump_data_timer("dump_data");
+  qlten::Timer dump_data_timer("dump_data");
   DumpData("energy" + mc_params.filename_postfix, energy_);
   for (size_t i = 0; i < dim_dof_xy; i++) {
     DumpData("sum_spin"
@@ -341,7 +341,7 @@ void XYMCExecutor<NumOfCouplingType>::StatisticAndDumpData_() {
   }
   dump_data_timer.PrintElapsed();
 
-  gqten::Timer statistic_timer("statistic");
+  qlten::Timer statistic_timer("statistic");
   // energy
   auto half_data_of_energy = std::vector(energy_.begin() + mc_params.sweeps / 2, energy_.end());
   res_.push_back(Mean(half_data_of_energy) / phys_params.N);

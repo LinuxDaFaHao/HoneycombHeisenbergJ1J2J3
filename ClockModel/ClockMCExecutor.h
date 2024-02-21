@@ -7,8 +7,8 @@
 
 #include <string>
 #include "clock_config.h"
-#include "gqten/framework/bases/executor.h"       //Executor
-#include "gqten/utility/timer.h"
+#include "qlten/framework/bases/executor.h"       //Executor
+#include "qlten/utility/timer.h"
 #include "../MonteCarlo_src/common.h"
 
 struct MCParams {
@@ -51,7 +51,7 @@ struct ClockPhysParams {
 };
 
 template<size_t q>
-class ClockMCExecutor : public gqten::Executor {
+class ClockMCExecutor : public qlten::Executor {
   using LocalDOFT = ClockDOF<q>;
  public:
   ClockMCExecutor(const MCParams &,
@@ -96,7 +96,7 @@ template<size_t q>
 ClockMCExecutor<q>::ClockMCExecutor(const MCParams &mc_params,
                                     const ClockPhysParams &phys_params,
                                     size_t world_rank):
-    gqten::Executor(),
+    qlten::Executor(),
     mc_params(mc_params),
     phys_params(phys_params),
     mpi_world_rank_(world_rank),
@@ -146,13 +146,13 @@ ClockMCExecutor<q>::ClockMCExecutor(const MCParams &mc_params,
   energy_.reserve(sweeps);
   fm_m_square_.reserve(sweeps);
 
-  SetStatus(gqten::INITED);
+  SetStatus(qlten::INITED);
 }
 
 template<size_t q>
 void ClockMCExecutor<q>::Execute() {
-  SetStatus(gqten::EXEING);
-  gqten::Timer wolf_mc_execute_timer("wolf_mc_execute");
+  SetStatus(qlten::EXEING);
+  qlten::Timer wolf_mc_execute_timer("wolf_mc_execute");
   for (size_t sweep = 0; sweep < mc_params.sweeps; sweep++) {
     MetropolisSweep_();
 
@@ -177,7 +177,7 @@ void ClockMCExecutor<q>::Execute() {
   }
 
   StatisticAndDumpData_();
-  SetStatus(gqten::FINISH);
+  SetStatus(qlten::FINISH);
 }
 
 template<size_t q>
@@ -304,12 +304,12 @@ void ClockMCExecutor<q>::Measure_(size_t sweep) {
 
 template<size_t q>
 void ClockMCExecutor<q>::StatisticAndDumpData_() {
-  gqten::Timer dump_data_timer("dump_data");
+  qlten::Timer dump_data_timer("dump_data");
   DumpData("energy" + mc_params.filename_postfix, energy_);
   DumpData("msquare" + mc_params.filename_postfix, fm_m_square_);
   dump_data_timer.PrintElapsed();
 
-  gqten::Timer statistic_timer("statistic");
+  qlten::Timer statistic_timer("statistic");
   size_t sweeps = mc_params.sweeps;
   // energy
   auto half_data_of_energy = std::vector(energy_.begin() + mc_params.sweeps / 2, energy_.end());

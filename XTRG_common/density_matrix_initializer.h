@@ -17,14 +17,14 @@
 
 
 
-#include "gqten/gqten.h"
-#include "gqmps2/gqmps2.h"
+#include "qlten/qlten.h"
+#include "qlmps/qlmps.h"
 #include "./mpopp.h"
 #include "./mpo_utility.h"
 #include "./xtrg_params.h"
 namespace xtrg {
-using namespace gqten;
-using namespace gqmps2;
+using namespace qlten;
+using namespace qlmps;
 
 
 //forward declaration
@@ -63,18 +63,18 @@ double InitializeDensityMatrix(
     FiniteMPO<TenElemT, QNT>& density_matrix //output
     ) {
   assert( hamiltonian.size() == density_matrix.size() );
-  const GQTEN_Double tau = params.tau;
-  const GQTEN_Double trunc_err = params.trunc_err;
+  const qlten_Double tau = params.tau;
+  const qlten_Double trunc_err = params.trunc_err;
   const size_t Dmin = params.Dmin;
   const size_t Dmax = params.Dmax;
   const size_t sweep_time_max = params.sweeps_variation;
   const std::string temp_path = params.temp_path;
   const size_t max_taylor_expansion_order = params.taylor_expansion_order;
-  const GQTEN_Double tolerance_taylor_expansion_error = params.tolerace_taylor_expansion;
+  const qlten_Double tolerance_taylor_expansion_error = params.tolerace_taylor_expansion;
 
   std::cout << "Constructing the density matrix with tau = " << tau << " by Taylor expansion" << std::endl;
   Timer taylor_expansion_timer("taylor_expansion");
-//  using Tensor = GQTensor<TenElemT, QNT>;
+//  using Tensor = qltensor<TenElemT, QNT>;
   using MPOT = FiniteMPO<TenElemT, QNT>;
   const size_t N = hamiltonian.size();
   const size_t bond_dimension_of_H = hamiltonian.GetMaxBondDimension();

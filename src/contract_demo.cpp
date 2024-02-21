@@ -3,24 +3,24 @@
 //
 
 
-#include "gqmps2/gqmps2.h"
+#include "qlmps/qlmps.h"
 #include <iostream>
 #include <vector>
 #include "myutil.h"
 
 using std::string;
 using std::vector;
-using namespace gqmps2;
-using namespace gqten;
+using namespace qlmps;
+using namespace qlten;
 using namespace std;
 
 
-using TenElemT = gqten::GQTEN_Complex;
+using TenElemT = qlten::qlten_Complex;
 
-using U1QN = gqten::special_qn::U1QN; // Sz
-using QNSctT = gqten::QNSector<U1QN>;
-using IndexT = gqten::Index<U1QN>;
-using Tensor = GQTensor<TenElemT, U1QN>;
+using U1QN = qlten::special_qn::U1QN; // Sz
+using QNSctT = qlten::QNSector<U1QN>;
+using IndexT = qlten::Index<U1QN>;
+using Tensor = QLTensor<TenElemT, U1QN>;
 const U1QN qn0 = U1QN(0);
 int main(int argc, char *argv[]){
   if(argc != 7) {
@@ -44,33 +44,33 @@ int main(int argc, char *argv[]){
             <<")" << std::endl;
   std::cout << "thread number = " << thread << std::endl;
 
-  gqten::hp_numeric::SetTensorTransposeNumThreads(thread);
-  gqten::hp_numeric::SetTensorManipulationThreads(thread);
 
-  gqten::Timer generator_tensor_timer("random generate tensors");
+  qlten::hp_numeric::SetTensorManipulationThreads(thread);
+
+  qlten::Timer generator_tensor_timer("random generate tensors");
   const IndexT pba0 = IndexT({QNSctT(U1QN(0), dima_0),},
-                               gqten::GQTenIndexDirType::IN
+                               qlten::TenIndexDirType::IN
   );
   const IndexT pba1 = IndexT({QNSctT(U1QN(0), dima_1),},
-                            gqten::GQTenIndexDirType::IN
+                            qlten::TenIndexDirType::IN
   );
   const IndexT pba2 = IndexT({QNSctT(U1QN(0), dima_2),},
-                            gqten::GQTenIndexDirType::OUT
+                            qlten::TenIndexDirType::OUT
   );
   Tensor tensor_a({pba0, pba1,pba2});
   tensor_a.Random(qn0);
   const IndexT pbb0 = IndexT({QNSctT(U1QN(0), dimb_0),},
-                             gqten::GQTenIndexDirType::IN
+                             qlten::TenIndexDirType::IN
   );
   const IndexT pbb1 = IndexT({QNSctT(U1QN(0), dimb_1),},
-                             gqten::GQTenIndexDirType::OUT
+                             qlten::TenIndexDirType::OUT
   );
 
   Tensor tensor_b({pbb0, pbb1});
   tensor_b.Random(qn0);
   Tensor res;
   generator_tensor_timer.PrintElapsed();
-  gqten::Timer contract_timer("contract");
+  qlten::Timer contract_timer("contract");
   Contract(&tensor_a, &tensor_b, {{0},{0}},&res);
   contract_timer.PrintElapsed();
   return 0;

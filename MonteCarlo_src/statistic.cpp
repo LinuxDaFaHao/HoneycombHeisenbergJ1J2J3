@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
       + "beta" + std::to_string(beta)
       + "L" + std::to_string(Lx);
 
-  gqten::Timer load_data_timer("load_data");
+  qlten::Timer load_data_timer("load_data");
   std::vector<double> res;
   auto &res_ = res;
   size_t data_size = mc_params.sweeps;
@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
 
   load_data_timer.PrintElapsed();
 
-  gqten::Timer statistic_timer("statistic");
+  qlten::Timer statistic_timer("statistic");
 
   auto half_data_of_energy = std::vector(energy_data.begin() + data_size / 2, energy_data.begin() + data_size);
   res.push_back(Mean(half_data_of_energy) / N);

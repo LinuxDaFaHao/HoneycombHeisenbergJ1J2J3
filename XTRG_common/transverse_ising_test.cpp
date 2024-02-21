@@ -11,24 +11,24 @@
 */
 
 
-#include "gqmps2/gqmps2.h"
-#include "gqten/gqten.h"
-using TenElemT = gqten::GQTEN_Double;
-using QNT = gqten::QN<gqten::U1QNVal>;
-using QNSctT = gqten::QNSector<QNT>;
-using IndexT = gqten::Index<QNT>;
-using Tensor = gqten::GQTensor<TenElemT, QNT>;
-using SiteVecT = gqmps2::SiteVec<TenElemT, QNT>;
-using FiniteMPST = gqmps2::FiniteMPS<TenElemT, QNT>;
+#include "qlmps/qlmps.h"
+#include "qlten/qlten.h"
+using TenElemT = qlten::qlten_Double;
+using QNT = qlten::QN<qlten::U1QNVal>;
+using QNSctT = qlten::QNSector<QNT>;
+using IndexT = qlten::Index<QNT>;
+using Tensor = qlten::qltensor<TenElemT, QNT>;
+using SiteVecT = qlmps::SiteVec<TenElemT, QNT>;
+using FiniteMPST = qlmps::FiniteMPS<TenElemT, QNT>;
 int main() {
-  auto qn0 =  QNT({gqten::QNCard("Sz", gqten::U1QNVal( 0))});
-  auto qnup = QNT({gqten::QNCard("Sz", gqten::U1QNVal( 1))});
-  auto qndn = QNT({gqten::QNCard("Sz", gqten::U1QNVal(-1))});
+  auto qn0 =  QNT({qlten::QNCard("Sz", qlten::U1QNVal( 0))});
+  auto qnup = QNT({qlten::QNCard("Sz", qlten::U1QNVal( 1))});
+  auto qndn = QNT({qlten::QNCard("Sz", qlten::U1QNVal(-1))});
   auto pb_out = IndexT(
       {QNSctT(qnup, 1), QNSctT(qndn, 1)},
-      gqten::GQTenIndexDirType::OUT
+      qlten::qltenIndexDirType::OUT
   );
-  auto pb_in = gqten::InverseIndex(pb_out);
+  auto pb_in = qlten::InverseIndex(pb_out);
   Tensor sz({pb_in, pb_out});
   Tensor sp({pb_in, pb_out});
   Tensor sm({pb_in, pb_out});
@@ -38,7 +38,7 @@ int main() {
   sm(1, 0) = 1;
   size_t N = 20;
   SiteVecT sites(N, pb_out);
-  gqmps2::MPOGenerator<TenElemT, QNT> mpo_gen(sites, qn0);
+  qlmps::MPOGenerator<TenElemT, QNT> mpo_gen(sites, qn0);
   for (size_t i = 0; i < N-1; ++i) {
     mpo_gen.AddTerm(1.0, sz, i, sz, i+1);
     mpo_gen.AddTerm(0.5, sp, i, sm, i+1);
@@ -51,23 +51,23 @@ int main() {
   double TruncErr = 1e-7;
   double LanczErr = 1e-8;
   size_t MaxLanczIter = 100;
-  gqmps2::SweepParams sweep_params(
+  qlmps::SweepParams sweep_params(
       Sweeps,
       Dmin, Dmax, TruncErr,
-      gqmps2::LanczosParams(LanczErr, MaxLanczIter)
+      qlmps::LanczosParams(LanczErr, MaxLanczIter)
   );
   FiniteMPST mps(sites);
   std::vector<size_t> stat_labs;
   for (size_t i = 0; i < N; ++i) { stat_labs.push_back(i % 2); }
-  gqmps2::DirectStateInitMps(mps, stat_labs);
+  qlmps::DirectStateInitMps(mps, stat_labs);
   mps.Dump(sweep_params.mps_path, true);
   size_t TenNumThreads = 4;
 
-  gqten::hp_numeric::SetTensorTransposeNumThreads(TenNumThreads);
-  gqten::hp_numeric::SetTensorManipulationThreads(TenNumThreads );
+  qlten::hp_numeric::SetTensorTransposeNumThreads(TenNumThreads);
+  qlten::hp_numeric::SetTensorManipulationThreads(TenNumThreads );
 
   FiniteMPST mps2 = mps;
-  auto e0 = gqmps2::TwoSiteFiniteVMPS(mps, mpo, sweep_params);
+  auto e0 = qlmps::TwoSiteFiniteVMPS(mps, mpo, sweep_params);
   std::cout << "E0/site: " << e0 / N << std::endl;    // E0/site: -0.43412
   return 0;
 }

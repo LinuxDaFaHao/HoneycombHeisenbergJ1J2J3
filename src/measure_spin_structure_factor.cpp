@@ -1,5 +1,5 @@
-#include "gqmps2/gqmps2.h"
-#include "gqten/gqten.h"
+#include "qlmps/qlmps.h"
+#include "qlten/qlten.h"
 #include <ctime>
 #include "DefSpinOne.h"
 #include "operators.h"
@@ -7,8 +7,8 @@
 #include "myutil.h"
 #include "my_measure.h"       //MeasureTwoSiteOp
 
-using namespace gqmps2;
-using namespace gqten;
+using namespace qlmps;
+using namespace qlten;
 using namespace std;
 
 int main(int argc, char *argv[]) {
@@ -24,14 +24,14 @@ int main(int argc, char *argv[]) {
   clock_t startTime, endTime;
   startTime = clock();
 
-  gqten::hp_numeric::SetTensorTransposeNumThreads(params.Threads);
-  gqten::hp_numeric::SetTensorManipulationThreads(params.Threads);
+  qlten::hp_numeric::SetTensorTransposeNumThreads(params.Threads);
+  qlten::hp_numeric::SetTensorManipulationThreads(params.Threads);
 
   using namespace spin_one_model;
   OperatorInitial();
   const SiteVec<TenElemT, U1QN> sites = SiteVec<TenElemT, U1QN>(N, pb_out);
 
-  using FiniteMPST = gqmps2::FiniteMPS<TenElemT, U1QN>;
+  using FiniteMPST = qlmps::FiniteMPS<TenElemT, U1QN>;
   FiniteMPST mps(sites);
 //  mps.Load();
 //  cout << "bond dimension of middle mps = ";

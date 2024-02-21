@@ -9,8 +9,8 @@
 #include <fstream>
 #include <numeric>
 #include <algorithm>
-#include "gqten/framework/bases/executor.h"
-#include "gqten/utility/timer.h"
+#include "qlten/framework/bases/executor.h"
+#include "qlten/utility/timer.h"
 #include "swcluster.h"
 #include "lattice_link.h"
 #include "lattice_config.h"
@@ -112,7 +112,7 @@ struct PhysParams {
 };
 
 template<size_t DimDof, size_t NumOfCouplingType>
-class WolfMCExecutor : public gqten::Executor {
+class WolfMCExecutor : public qlten::Executor {
   using LocalDOFT = LocalDOF<DimDof>;
  public:
   WolfMCExecutor(const MCParams &,
@@ -185,7 +185,7 @@ template<size_t DimDof, size_t NumOfCouplingType>
 WolfMCExecutor<DimDof, NumOfCouplingType>::WolfMCExecutor(const MCParams &mc_params,
                                                           const PhysParams<DimDof, NumOfCouplingType> &phys_params,
                                                           const size_t world_rank) :
-    gqten::Executor(),
+    qlten::Executor(),
     mc_params(mc_params),
     phys_params(phys_params),
     mpi_world_rank_(world_rank),
@@ -252,13 +252,13 @@ WolfMCExecutor<DimDof, NumOfCouplingType>::WolfMCExecutor(const MCParams &mc_par
     }
   }
 
-  SetStatus(gqten::INITED);
+  SetStatus(qlten::INITED);
 }
 
 template<size_t DimDof, size_t NumOfCouplingType>
 void WolfMCExecutor<DimDof, NumOfCouplingType>::Execute() {
-  SetStatus(gqten::EXEING);
-  gqten::Timer wolf_mc_execute_timer("wolf_mc_execute");
+  SetStatus(qlten::EXEING);
+  qlten::Timer wolf_mc_execute_timer("wolf_mc_execute");
   for (size_t sweep = 0; sweep < mc_params.sweeps; sweep++) {
     MetropolisSweep_();
 
@@ -285,7 +285,7 @@ void WolfMCExecutor<DimDof, NumOfCouplingType>::Execute() {
 
   StatisticAndDumpData_();
 
-  SetStatus(gqten::FINISH);
+  SetStatus(qlten::FINISH);
 }
 
 template<size_t DimDof, size_t NumOfCouplingType>
@@ -452,7 +452,7 @@ void WolfMCExecutor<DimDof, NumOfCouplingType>::Measure_(size_t sweep) {
 
 template<size_t DimDof, size_t NumOfCouplingType>
 void WolfMCExecutor<DimDof, NumOfCouplingType>::StatisticAndDumpData_() {
-  gqten::Timer dump_data_timer("dump_data");
+  qlten::Timer dump_data_timer("dump_data");
   DumpData("energy" + mc_params.filename_postfix, energy_);
   /*
    * for (size_t i = 0; i < DimDof; i++) {
@@ -485,7 +485,7 @@ void WolfMCExecutor<DimDof, NumOfCouplingType>::StatisticAndDumpData_() {
 //  DumpData("xy_order_correlation2" + mc_params.filename_postfix, correlation_lover4_);
   dump_data_timer.PrintElapsed();
 
-  gqten::Timer statistic_timer("statistic");
+  qlten::Timer statistic_timer("statistic");
   size_t sweeps = mc_params.sweeps;
   // energy
   auto half_data_of_energy = std::vector(energy_.begin() + mc_params.sweeps / 2, energy_.end());

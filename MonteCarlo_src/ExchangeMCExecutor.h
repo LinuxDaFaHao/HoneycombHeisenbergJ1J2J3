@@ -14,8 +14,8 @@
 #include <numeric>
 #include <algorithm>
 #include <omp.h>
-#include "gqten/framework/bases/executor.h"
-#include "gqten/utility/timer.h"
+#include "qlten/framework/bases/executor.h"
+#include "qlten/utility/timer.h"
 #include "swcluster.h"
 #include "lattice_link.h"
 #include "lattice_config.h"
@@ -306,7 +306,7 @@ struct StatisticResults {
 };
 
 template<size_t DimDof, size_t NumOfCouplingType>
-class ExchangeMCExecutor : public gqten::Executor {
+class ExchangeMCExecutor : public qlten::Executor {
   using LocalDOFT = LocalDOF<DimDof>;
  public:
   ExchangeMCExecutor(const ExchangeMCParams &,
@@ -383,7 +383,7 @@ template<size_t DimDof, size_t NumOfCouplingType>
 ExchangeMCExecutor<DimDof, NumOfCouplingType>::ExchangeMCExecutor(const ExchangeMCParams &mc_params,
                                                                   const PhysParams<DimDof,
                                                                                    NumOfCouplingType> &phys_params) :
-    gqten::Executor(),
+    qlten::Executor(),
     mc_params(mc_params),
     phys_params(phys_params),
     beta_set_(mc_params.thread_num),
@@ -467,13 +467,13 @@ ExchangeMCExecutor<DimDof, NumOfCouplingType>::ExchangeMCExecutor(const Exchange
     random_number_generators[replica_id].seed((int) clock() + replica_id * 97);
   }
 
-  SetStatus(gqten::INITED);
+  SetStatus(qlten::INITED);
 }
 
 template<size_t DimDof, size_t NumOfCouplingType>
 void ExchangeMCExecutor<DimDof, NumOfCouplingType>::Execute() {
-  SetStatus(gqten::EXEING);
-  gqten::Timer wolf_mc_execute_timer("wolf_mc_execute");
+  SetStatus(qlten::EXEING);
+  qlten::Timer wolf_mc_execute_timer("wolf_mc_execute");
   for (size_t adjust_time = 0; adjust_time < mc_params.adjust_temperature_times; adjust_time++) {
     std::cout << "adjust " << adjust_time << std::endl;
     for (size_t sweep = 0; sweep < mc_params.adjust_temperature_samples; sweep++) {
@@ -551,7 +551,7 @@ void ExchangeMCExecutor<DimDof, NumOfCouplingType>::Execute() {
                   * double(mc_params.exchange_interval)
               << std::endl;
   }
-  SetStatus(gqten::FINISH);
+  SetStatus(qlten::FINISH);
 }
 
 template<size_t DimDof, size_t NumOfCouplingType>
@@ -785,7 +785,7 @@ void ExchangeMCExecutor<DimDof, NumOfCouplingType>::Measure_(size_t replica_id) 
 
 template<size_t DimDof, size_t NumOfCouplingType>
 void ExchangeMCExecutor<DimDof, NumOfCouplingType>::DumpSamplesData_() {
-  gqten::Timer dump_data_timer("dump_data");
+  qlten::Timer dump_data_timer("dump_data");
 #pragma omp parallel for default(none) \
                 shared(mc_params, phys_params)\
                 num_threads(mc_params.thread_num)\
@@ -827,7 +827,7 @@ void ExchangeMCExecutor<DimDof, NumOfCouplingType>::DumpSamplesData_() {
 
 template<size_t DimDof, size_t NumOfCouplingType>
 void ExchangeMCExecutor<DimDof, NumOfCouplingType>::StatisticAndDumpResults_() {
-  gqten::Timer statistic_timer("statistic");
+  qlten::Timer statistic_timer("statistic");
   results_.beta = beta_set_;
   size_t sweeps = mc_params.sweeps;
   size_t warmup_sample_num = mc_params.warmup_sample_num;

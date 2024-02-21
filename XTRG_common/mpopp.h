@@ -17,14 +17,14 @@
 
 
 
-#include "gqten/gqten.h"
-#include "gqmps2/gqmps2.h"
+#include "qlten/qlten.h"
+#include "qlmps/qlmps.h"
 
 #include "xtrg_params.h"
 
 namespace xtrg {
-using namespace gqten;
-using namespace gqmps2;
+using namespace qlten;
+using namespace qlmps;
 
 
 const std::string kMpoTenBaseName = "mpo";
@@ -48,16 +48,16 @@ double MpoProduct(
 
 inline std::string GenMPOTenName(const std::string &mpo_path, const size_t idx) {
   return mpo_path + "/" +
-      kMpoTenBaseName + std::to_string(idx) + "." + kGQTenFileSuffix;
+      kMpoTenBaseName + std::to_string(idx) + "." + kqltenFileSuffix;
 }
 
 using MPOTenCanoType = MPSTenCanoType;
 
 
 template <typename TenElemT, typename QNT>
-class FiniteMPO : public TenVec<GQTensor<TenElemT, QNT>> {
+class FiniteMPO : public TenVec<qltensor<TenElemT, QNT>> {
  public:
-  using LocalTenT = GQTensor<TenElemT, QNT>;
+  using LocalTenT = qltensor<TenElemT, QNT>;
 
   FiniteMPO(const size_t size) : TenVec<LocalTenT>(size), center_(kUncentralizedCenterIdx), tens_cano_type_(size) {
   }
@@ -189,7 +189,7 @@ class FiniteMPO : public TenVec<GQTensor<TenElemT, QNT>> {
   void RightCanonicalizeTen(const size_t);
 
 
-  double Truncate(const GQTEN_Double, const size_t, const size_t);
+  double Truncate(const qlten_Double, const size_t, const size_t);
 
 
   void Dump(const std::string &mpo_path ) const {
@@ -270,9 +270,9 @@ class FiniteMPO : public TenVec<GQTensor<TenElemT, QNT>> {
   std::vector<MPOTenCanoType> tens_cano_type_;
 
   /// with truncate version
-  void RightCanonicalizeTen_(const size_t, const GQTEN_Double,
+  void RightCanonicalizeTen_(const size_t, const qlten_Double,
                             const size_t, const size_t,
-                            GQTEN_Double&, size_t&);
+                            qlten_Double&, size_t&);
 
   void SetCenter_() {
     if(center_ != kUncentralizedCenterIdx) {
@@ -359,10 +359,10 @@ void FiniteMPO<TenElemT, QNT>::RightCanonicalizeTen(const size_t site_idx) {
   assert(site_idx > 0);
   size_t ldims = 1;
   LocalTenT u;
-  GQTensor<GQTEN_Double, QNT> s;
+  qltensor<qlten_Double, QNT> s;
   auto pvt = new LocalTenT;
   auto qndiv = Div((*this)[site_idx]);
-  mock_gqten::SVD((*this)(site_idx), ldims, qndiv - qndiv, &u, &s, pvt);
+  mock_qlten::SVD((*this)(site_idx), ldims, qndiv - qndiv, &u, &s, pvt);
   delete (*this)(site_idx);
   (*this)(site_idx) = pvt;
 
@@ -379,7 +379,7 @@ void FiniteMPO<TenElemT, QNT>::RightCanonicalizeTen(const size_t site_idx) {
 }
 
 template <typename TenElemT, typename QNT>
-double FiniteMPO<TenElemT, QNT>::Truncate(const GQTEN_Double trunc_err,
+double FiniteMPO<TenElemT, QNT>::Truncate(const qlten_Double trunc_err,
                                         const size_t Dmin,
                                         const size_t Dmax) {
   auto N = this->size();
@@ -387,7 +387,7 @@ double FiniteMPO<TenElemT, QNT>::Truncate(const GQTEN_Double trunc_err,
   this->Centralize(N-1);
   double norm2 = (*this)(N-1)->Normalize();
 
-  GQTEN_Double actual_trunc_err;
+  qlten_Double actual_trunc_err;
   size_t D;
 
   for (size_t i = N-1; i > 0; i--) {
@@ -444,18 +444,18 @@ TenElemT FiniteMPO<TenElemT, QNT>::Trace() {
  */
 template <typename TenElemT, typename QNT>
 void FiniteMPO<TenElemT, QNT>::RightCanonicalizeTen_(const size_t site_idx,
-                                                     const GQTEN_Double trunc_err,
+                                                     const qlten_Double trunc_err,
                                                      const size_t Dmin,
                                                      const size_t Dmax,
-                                                     GQTEN_Double& actrual_trunc_err,
+                                                     qlten_Double& actrual_trunc_err,
                                                      size_t& D) {
   assert(site_idx > 0);
   size_t ldims = 1;
   LocalTenT u;
-  GQTensor<GQTEN_Double, QNT> s;
+  qltensor<qlten_Double, QNT> s;
   auto pvt = new LocalTenT;
   auto qndiv = Div((*this)[site_idx]);
-  gqten::SVD((*this)(site_idx), ldims, qndiv-qndiv, trunc_err, Dmin, Dmax, &u, &s, pvt, &actrual_trunc_err, &D);
+  qlten::SVD((*this)(site_idx), ldims, qndiv-qndiv, trunc_err, Dmin, Dmax, &u, &s, pvt, &actrual_trunc_err, &D);
   delete (*this)(site_idx);
   (*this)(site_idx) = pvt;
 

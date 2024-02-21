@@ -14,13 +14,13 @@
 #ifndef HONEYCOMBHEISENBERG_XTRG_COMMON_XTRG_IMPL_H
 #define HONEYCOMBHEISENBERG_XTRG_COMMON_XTRG_IMPL_H
 
-#include "gqten/gqten.h"
-#include "gqmps2/gqmps2.h"
+#include "qlten/qlten.h"
+#include "qlmps/qlmps.h"
 #include "xtrg_params.h"
 
 namespace xtrg {
-using namespace gqten;
-using namespace gqmps2;
+using namespace qlten;
+using namespace qlmps;
 
 
 std::string GenDensityMatrixMpoPath(

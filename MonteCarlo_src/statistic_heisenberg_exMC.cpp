@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
       + "beta_min" + std::to_string(beta_min)
       + "L" + std::to_string(Lx);
 
-  gqten::Timer load_data_timer("load_data");
+  qlten::Timer load_data_timer("load_data");
   StatisticResults<DimDof> results_(thread);
   results_.LoadData(path_to_old_res + "results" + mc_params.filename_postfix);
   size_t data_size = mc_params.sweeps;
@@ -153,7 +153,7 @@ int main(int argc, char **argv) {
 
   load_data_timer.PrintElapsed();
 
-  gqten::Timer statistic_timer("statistic");
+  qlten::Timer statistic_timer("statistic");
 
   size_t warmup_sample_num = mc_params.warmup_sample_num;
   size_t N_square = N * N;

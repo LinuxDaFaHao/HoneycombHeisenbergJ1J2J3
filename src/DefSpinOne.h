@@ -11,7 +11,7 @@
 #include "qlten/qlten.h"
 
 
-using TenElemT = qlten::QLTEN_Double;
+using TenElemT = qlten:: QLTEN_Double;
 
 using U1QN = qlten::special_qn::U1QN; // Sz
 

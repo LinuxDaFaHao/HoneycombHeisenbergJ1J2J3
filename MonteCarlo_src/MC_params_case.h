@@ -6,8 +6,8 @@
 #define HONEYCOMBHEISENBERG_MONTECARLO_SRC_MC_PARAMS_CASE_H_
 
 
-#include "gqmps2/case_params_parser.h"
-using gqmps2::CaseParamsParserBasic;
+#include "qlmps/case_params_parser.h"
+using qlmps::CaseParamsParserBasic;
 
 struct CaseParams : public CaseParamsParserBasic {
   CaseParams(const char *pf) : CaseParamsParserBasic(pf) {

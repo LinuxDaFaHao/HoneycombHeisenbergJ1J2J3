@@ -11,18 +11,18 @@
 */
 
 
-#include "gqmps2/gqmps2.h"
-#include "gqten/gqten.h"
+#include "qlmps/qlmps.h"
+#include "qlten/qlten.h"
 
 #include "xtrg.h"
 
-using TenElemT = gqten::GQTEN_Double;
-using QNT = gqten::QN<gqten::U1QNVal>;
-using QNSctT = gqten::QNSector<QNT>;
-using IndexT = gqten::Index<QNT>;
-using Tensor = gqten::GQTensor<TenElemT, QNT>;
-using SiteVecT = gqmps2::SiteVec<TenElemT, QNT>;
-using FiniteMPST = gqmps2::FiniteMPS<TenElemT, QNT>;
+using TenElemT = qlten::qlten_Double;
+using QNT = qlten::QN<qlten::U1QNVal>;
+using QNSctT = qlten::QNSector<QNT>;
+using IndexT = qlten::Index<QNT>;
+using Tensor = qlten::qltensor<TenElemT, QNT>;
+using SiteVecT = qlmps::SiteVec<TenElemT, QNT>;
+using FiniteMPST = qlmps::FiniteMPS<TenElemT, QNT>;
 
 //forward declaration
 double CalPartitionFunctionOpenXYChain(
@@ -31,14 +31,14 @@ double CalPartitionFunctionOpenXYChain(
     const double beta     // 1/T
 );
 int main() {
-  auto qn0 =  QNT({gqten::QNCard("Sz", gqten::U1QNVal( 0))});
-  auto qnup = QNT({gqten::QNCard("Sz", gqten::U1QNVal( 1))});
-  auto qndn = QNT({gqten::QNCard("Sz", gqten::U1QNVal(-1))});
+  auto qn0 =  QNT({qlten::QNCard("Sz", qlten::U1QNVal( 0))});
+  auto qnup = QNT({qlten::QNCard("Sz", qlten::U1QNVal( 1))});
+  auto qndn = QNT({qlten::QNCard("Sz", qlten::U1QNVal(-1))});
   auto pb_out = IndexT(
       {QNSctT(qnup, 1), QNSctT(qndn, 1)},
-      gqten::GQTenIndexDirType::OUT
+      qlten::qltenIndexDirType::OUT
   );
-  auto pb_in = gqten::InverseIndex(pb_out);
+  auto pb_in = qlten::InverseIndex(pb_out);
   Tensor sz({pb_in, pb_out});
   Tensor sp({pb_in, pb_out});
   Tensor sm({pb_in, pb_out});
@@ -49,7 +49,7 @@ int main() {
   size_t N = 10;
   double J = 1;
   SiteVecT sites(N, pb_out);
-  gqmps2::MPOGenerator<TenElemT, QNT> mpo_gen(sites, qn0);
+  qlmps::MPOGenerator<TenElemT, QNT> mpo_gen(sites, qn0);
   for (size_t i = 0; i < N-1; ++i) {
     mpo_gen.AddTerm(J/2, sp, i, sm, i+1);
     mpo_gen.AddTerm(J/2, sm, i, sp, i+1);
@@ -82,8 +82,8 @@ int main() {
 
   size_t TenNumThreads = 4;
 
-  gqten::hp_numeric::SetTensorTransposeNumThreads(TenNumThreads);
-  gqten::hp_numeric::SetTensorManipulationThreads(TenNumThreads );
+  qlten::hp_numeric::SetTensorTransposeNumThreads(TenNumThreads);
+  qlten::hp_numeric::SetTensorManipulationThreads(TenNumThreads );
 
 
 //  xtrg::InitializeDensityMatrix(hamiltonian, params, density_matrix);
