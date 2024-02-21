@@ -14,9 +14,6 @@
 #ifndef HONEYCOMBHEISENBERG_XTRG_COMMON_MPOPP_H
 #define HONEYCOMBHEISENBERG_XTRG_COMMON_MPOPP_H
 
-
-
-
 #include "qlten/qlten.h"
 #include "qlmps/qlmps.h"
 
@@ -26,18 +23,17 @@ namespace xtrg {
 using namespace qlten;
 using namespace qlmps;
 
-
 const std::string kMpoTenBaseName = "mpo";
 
 //forward declaration
-template <typename TenElemT, typename QNT>
+template<typename TenElemT, typename QNT>
 class FiniteMPO;
 
-template <typename TenElemT, typename QNT>
+template<typename TenElemT, typename QNT>
 double MpoProduct(
-    const FiniteMPO<TenElemT, QNT>& mpo1,
-    const FiniteMPO<TenElemT, QNT>& mpo2,
-    FiniteMPO<TenElemT, QNT>& output_mpo,
+    const FiniteMPO<TenElemT, QNT> &mpo1,
+    const FiniteMPO<TenElemT, QNT> &mpo2,
+    FiniteMPO<TenElemT, QNT> &output_mpo,
     const size_t Dmin,
     const size_t Dmax, // the bond dimension
     const double trunc_err, // truncation error when svd decomposition
@@ -48,16 +44,15 @@ double MpoProduct(
 
 inline std::string GenMPOTenName(const std::string &mpo_path, const size_t idx) {
   return mpo_path + "/" +
-      kMpoTenBaseName + std::to_string(idx) + "." + kqltenFileSuffix;
+      kMpoTenBaseName + std::to_string(idx) + "." + kQLTenFileSuffix;
 }
 
 using MPOTenCanoType = MPSTenCanoType;
 
-
-template <typename TenElemT, typename QNT>
-class FiniteMPO : public TenVec<qltensor<TenElemT, QNT>> {
+template<typename TenElemT, typename QNT>
+class FiniteMPO : public TenVec<QLTensor<TenElemT, QNT>> {
  public:
-  using LocalTenT = qltensor<TenElemT, QNT>;
+  using LocalTenT = QLTensor<TenElemT, QNT>;
 
   FiniteMPO(const size_t size) : TenVec<LocalTenT>(size), center_(kUncentralizedCenterIdx), tens_cano_type_(size) {
   }
@@ -102,7 +97,7 @@ class FiniteMPO : public TenVec<qltensor<TenElemT, QNT>> {
    * @param idx
    * @return
    */
-  LocalTenT * &operator()(const size_t idx) {
+  LocalTenT *&operator()(const size_t idx) {
 //    std::cout << "call () " << std::endl;
     tens_cano_type_[idx] = MPOTenCanoType::NONE;
     center_ = kUncentralizedCenterIdx;
@@ -119,24 +114,24 @@ class FiniteMPO : public TenVec<qltensor<TenElemT, QNT>> {
     return DuoVector<LocalTenT>::operator()(idx);
   }
 
-  FiniteMPO& operator*=(const TenElemT s) {
+  FiniteMPO &operator*=(const TenElemT s) {
     this->Scale(s);
     return (*this);
   }
 
-  FiniteMPO& operator+=(const FiniteMPO& rhs) {
+  FiniteMPO &operator+=(const FiniteMPO &rhs) {
     const size_t N = this->size();
     assert(rhs.size() == N);
 
-    for(size_t i = 0; i < N; i++) {
-      LocalTenT* ptemp = new LocalTenT();
-      assert( (*this)(i) != nullptr );
-      if(i == 0) {
-        Expand( (*this)(i), rhs(i), {3}, ptemp);
-      } else if(i == N -1) {
-        Expand( (*this)(i), rhs(i), {0}, ptemp);
+    for (size_t i = 0; i < N; i++) {
+      LocalTenT *ptemp = new LocalTenT();
+      assert((*this)(i) != nullptr);
+      if (i == 0) {
+        Expand((*this)(i), rhs(i), {3}, ptemp);
+      } else if (i == N - 1) {
+        Expand((*this)(i), rhs(i), {0}, ptemp);
       } else {
-        Expand( (*this)(i), rhs(i), {0,3}, ptemp);
+        Expand((*this)(i), rhs(i), {0, 3}, ptemp);
       }
       delete (*this)(i);
       (*this)(i) = ptemp;
@@ -151,18 +146,18 @@ class FiniteMPO : public TenVec<qltensor<TenElemT, QNT>> {
    * @param optimize_params
    * @return
    */
-  double Square(const MpoVOptimizeParams& optimize_params) {
+  double Square(const MpoVOptimizeParams &optimize_params) {
     const size_t N = this->size();
 
     FiniteMPO result(N);
     result.Load(optimize_params.initial_mpo_path);
     double norm2 = MpoProduct(*this, *this, result,
-               optimize_params.Dmin, optimize_params.Dmax, optimize_params.trunc_err,
-               optimize_params.sweeps, optimize_params.converge_tolerance,
-               optimize_params.temp_path);
+                              optimize_params.Dmin, optimize_params.Dmax, optimize_params.trunc_err,
+                              optimize_params.sweeps, optimize_params.converge_tolerance,
+                              optimize_params.temp_path);
     size_t result_center = result.center_;
-    for(size_t i = 0; i < N; i++) {
-      assert(  (*this)(i) != nullptr);
+    for (size_t i = 0; i < N; i++) {
+      assert((*this)(i) != nullptr);
       delete (*this)(i);
       (*this)(i) = result(i);
       result(i) = nullptr;
@@ -173,10 +168,10 @@ class FiniteMPO : public TenVec<qltensor<TenElemT, QNT>> {
     return norm2;
   }
 
-  double SquareAndNormlize(const MpoVOptimizeParams& optimize_params){
+  double SquareAndNormlize(const MpoVOptimizeParams &optimize_params) {
     double norm2 = this->Square(optimize_params);
     assert(center_ != kUncentralizedCenterIdx);
-    this->Scale(1.0/norm2);
+    this->Scale(1.0 / norm2);
     return norm2;
   }
 
@@ -188,11 +183,9 @@ class FiniteMPO : public TenVec<qltensor<TenElemT, QNT>> {
   void LeftCanonicalizeTen(const size_t);
   void RightCanonicalizeTen(const size_t);
 
+  double Truncate(const QLTEN_Double, const size_t, const size_t);
 
-  double Truncate(const qlten_Double, const size_t, const size_t);
-
-
-  void Dump(const std::string &mpo_path ) const {
+  void Dump(const std::string &mpo_path) const {
     if (!IsPathExist(mpo_path)) { CreatPath(mpo_path); }
     std::string file;
     for (size_t i = 0; i < this->size(); ++i) {
@@ -226,22 +219,22 @@ class FiniteMPO : public TenVec<qltensor<TenElemT, QNT>> {
   }
 
   void Scale(const TenElemT s) {
-    if(center_ != kUncentralizedCenterIdx) {
+    if (center_ != kUncentralizedCenterIdx) {
       const size_t old_center = center_;
       (*this)[old_center] *= s;
       center_ = old_center;
-    } else{
+    } else {
       (*this)[0] *= s;
     }
   }
 
   double Normlize() {
     double norm2;
-    if(center_ != kUncentralizedCenterIdx) {
+    if (center_ != kUncentralizedCenterIdx) {
       const size_t old_center = center_;
       norm2 = (*this)(old_center)->Normalize();
       center_ = old_center;
-    } else{
+    } else {
       norm2 = (*this)(0)->Normalize();
     }
     return norm2;
@@ -251,7 +244,7 @@ class FiniteMPO : public TenVec<qltensor<TenElemT, QNT>> {
 
   size_t GetMaxBondDimension(void) const {
     size_t D = 1;
-    for(size_t i = 0; i < (*this).size() - 1; i++) {
+    for (size_t i = 0; i < (*this).size() - 1; i++) {
       D = std::max(D, (*this)[i].GetShape()[3]);
     }
     return D;
@@ -270,26 +263,26 @@ class FiniteMPO : public TenVec<qltensor<TenElemT, QNT>> {
   std::vector<MPOTenCanoType> tens_cano_type_;
 
   /// with truncate version
-  void RightCanonicalizeTen_(const size_t, const qlten_Double,
-                            const size_t, const size_t,
-                            qlten_Double&, size_t&);
+  void RightCanonicalizeTen_(const size_t, const QLTEN_Double,
+                             const size_t, const size_t,
+                             QLTEN_Double &, size_t &);
 
   void SetCenter_() {
-    if(center_ != kUncentralizedCenterIdx) {
-      for(size_t i = 0; i < center_; i++) {
+    if (center_ != kUncentralizedCenterIdx) {
+      for (size_t i = 0; i < center_; i++) {
         tens_cano_type_[i] = MPOTenCanoType::LEFT;
       }
       tens_cano_type_[center_] = MPOTenCanoType::NONE;
-      for(size_t i = center_+1; i < this->size(); i++) {
+      for (size_t i = center_ + 1; i < this->size(); i++) {
         tens_cano_type_[i] = MPOTenCanoType::RIGHT;
       }
     }
   }
-  template <typename TenElemT2, typename QNT2>
+  template<typename TenElemT2, typename QNT2>
   friend double MpoProduct(
-      const FiniteMPO<TenElemT2, QNT2>& mpo1,
-      const FiniteMPO<TenElemT2, QNT2>& mpo2,
-      FiniteMPO<TenElemT2, QNT2>& output_mpo,
+      const FiniteMPO<TenElemT2, QNT2> &mpo1,
+      const FiniteMPO<TenElemT2, QNT2> &mpo2,
+      FiniteMPO<TenElemT2, QNT2> &output_mpo,
       const size_t Dmin,
       const size_t Dmax, // the bond dimension
       const double trunc_err, // truncation error when svd decomposition
@@ -299,7 +292,7 @@ class FiniteMPO : public TenVec<qltensor<TenElemT, QNT>> {
   );
 };
 
-template <typename TenElemT, typename QNT>
+template<typename TenElemT, typename QNT>
 void FiniteMPO<TenElemT, QNT>::Centralize(const int target_center) {
   assert(target_center >= 0);
   auto mpo_tail_idx = this->size() - 1;
@@ -310,7 +303,7 @@ void FiniteMPO<TenElemT, QNT>::Centralize(const int target_center) {
   center_ = target_center;
 }
 
-template <typename TenElemT, typename QNT>
+template<typename TenElemT, typename QNT>
 void FiniteMPO<TenElemT, QNT>::LeftCanonicalize(const size_t stop_idx) {
   size_t start_idx;
   for (size_t i = 0; i <= stop_idx; ++i) {
@@ -321,8 +314,7 @@ void FiniteMPO<TenElemT, QNT>::LeftCanonicalize(const size_t stop_idx) {
   for (size_t i = start_idx; i <= stop_idx; ++i) { LeftCanonicalizeTen(i); }
 }
 
-
-template <typename TenElemT, typename QNT>
+template<typename TenElemT, typename QNT>
 void FiniteMPO<TenElemT, QNT>::LeftCanonicalizeTen(const size_t site_idx) {
   assert(site_idx < this->size() - 1);
   size_t ldims(3);
@@ -333,7 +325,7 @@ void FiniteMPO<TenElemT, QNT>::LeftCanonicalizeTen(const size_t site_idx) {
   (*this)(site_idx) = pq;
 
   auto pnext_ten = new LocalTenT;
-  Contract(&r, (*this)(site_idx+1), {{1}, {0}}, pnext_ten);
+  Contract(&r, (*this)(site_idx + 1), {{1}, {0}}, pnext_ten);
   delete (*this)(site_idx + 1);
   (*this)(site_idx + 1) = pnext_ten;
 
@@ -341,7 +333,7 @@ void FiniteMPO<TenElemT, QNT>::LeftCanonicalizeTen(const size_t site_idx) {
   tens_cano_type_[site_idx + 1] = MPSTenCanoType::NONE;
 }
 
-template <typename TenElemT, typename QNT>
+template<typename TenElemT, typename QNT>
 void FiniteMPO<TenElemT, QNT>::RightCanonicalize(const size_t stop_idx) {
   auto mpo_tail_idx = this->size() - 1;
   size_t start_idx;
@@ -353,13 +345,13 @@ void FiniteMPO<TenElemT, QNT>::RightCanonicalize(const size_t stop_idx) {
   for (size_t i = start_idx; i >= stop_idx; --i) { RightCanonicalizeTen(i); }
 }
 
-template <typename TenElemT, typename QNT>
+template<typename TenElemT, typename QNT>
 void FiniteMPO<TenElemT, QNT>::RightCanonicalizeTen(const size_t site_idx) {
   ///< TODO: using LU decomposition
   assert(site_idx > 0);
   size_t ldims = 1;
   LocalTenT u;
-  qltensor<qlten_Double, QNT> s;
+  QLTensor<QLTEN_Double, QNT> s;
   auto pvt = new LocalTenT;
   auto qndiv = Div((*this)[site_idx]);
   mock_qlten::SVD((*this)(site_idx), ldims, qndiv - qndiv, &u, &s, pvt);
@@ -378,19 +370,19 @@ void FiniteMPO<TenElemT, QNT>::RightCanonicalizeTen(const size_t site_idx) {
   tens_cano_type_[site_idx - 1] = MPSTenCanoType::NONE;
 }
 
-template <typename TenElemT, typename QNT>
-double FiniteMPO<TenElemT, QNT>::Truncate(const qlten_Double trunc_err,
-                                        const size_t Dmin,
-                                        const size_t Dmax) {
+template<typename TenElemT, typename QNT>
+double FiniteMPO<TenElemT, QNT>::Truncate(const QLTEN_Double trunc_err,
+                                          const size_t Dmin,
+                                          const size_t Dmax) {
   auto N = this->size();
-  assert(N >=2);
-  this->Centralize(N-1);
-  double norm2 = (*this)(N-1)->Normalize();
+  assert(N >= 2);
+  this->Centralize(N - 1);
+  double norm2 = (*this)(N - 1)->Normalize();
 
-  qlten_Double actual_trunc_err;
+  QLTEN_Double actual_trunc_err;
   size_t D;
 
-  for (size_t i = N-1; i > 0; i--) {
+  for (size_t i = N - 1; i > 0; i--) {
     this->RightCanonicalizeTen_(i, trunc_err, Dmin, Dmax, actual_trunc_err, D);
     std::cout << "Truncate FiniteMPO bond " << std::setw(4) << i
               << ", TruncErr = " << std::setprecision(2) << std::scientific << actual_trunc_err << std::fixed
@@ -400,35 +392,32 @@ double FiniteMPO<TenElemT, QNT>::Truncate(const qlten_Double trunc_err,
   return norm2;
 }
 
-
-
 /** the trace of the operator
  *  todo: (not important) using trace(summation) to replace contract with identity one day.
  * @tparam TenElemT
  * @tparam QNT
  */
-template <typename TenElemT, typename QNT>
+template<typename TenElemT, typename QNT>
 TenElemT FiniteMPO<TenElemT, QNT>::Trace() {
   LocalTenT left_vector_ten;
   Index<QNT> left_trivial_index = (*this)[0].GetIndexes()[0];
-  left_vector_ten = LocalTenT({InverseIndex( left_trivial_index) });
+  left_vector_ten = LocalTenT({InverseIndex(left_trivial_index)});
   left_vector_ten({0}) = 1.0;
 //  LocalTenT right_vector_ten;
 //  Index<QNT> right_trivial_index = (*this).back().GetIndexes()[3];
 //  right_vector_ten = LocalTenT({InverseIndex( right_trivial_index });
 
-  for(size_t i = 0; i < (*this).size(); i++) {
+  for (size_t i = 0; i < (*this).size(); i++) {
     LocalTenT temp_ten;
-    const Index<QNT>& idx_out = (*this)[i].GetIndexes()[2];
+    const Index<QNT> &idx_out = (*this)[i].GetIndexes()[2];
     LocalTenT id = GenIdOp<TenElemT, QNT>(idx_out);//assume non-uniform lattice site
-    Contract(&left_vector_ten, (*this)(i), {{0},{0}}, &temp_ten);
+    Contract(&left_vector_ten, (*this)(i), {{0}, {0}}, &temp_ten);
     left_vector_ten = LocalTenT();
-    Contract(&temp_ten, &id, {{0,1},{1,0}}, &left_vector_ten);
+    Contract(&temp_ten, &id, {{0, 1}, {1, 0}}, &left_vector_ten);
   }
   TenElemT t = left_vector_ten({0});
   return t;
 }
-
 
 /** Truncate when right canonicalize the tensor on site `site_idx`.
  *
@@ -442,20 +431,20 @@ TenElemT FiniteMPO<TenElemT, QNT>::Trace() {
  * @param actrual_trunc_err  output, the actrual truncation error.
  * @param D                  output, the bond dimension after canonicalizing.
  */
-template <typename TenElemT, typename QNT>
+template<typename TenElemT, typename QNT>
 void FiniteMPO<TenElemT, QNT>::RightCanonicalizeTen_(const size_t site_idx,
-                                                     const qlten_Double trunc_err,
+                                                     const QLTEN_Double trunc_err,
                                                      const size_t Dmin,
                                                      const size_t Dmax,
-                                                     qlten_Double& actrual_trunc_err,
-                                                     size_t& D) {
+                                                     QLTEN_Double &actrual_trunc_err,
+                                                     size_t &D) {
   assert(site_idx > 0);
   size_t ldims = 1;
   LocalTenT u;
-  qltensor<qlten_Double, QNT> s;
+  QLTensor<QLTEN_Double, QNT> s;
   auto pvt = new LocalTenT;
   auto qndiv = Div((*this)[site_idx]);
-  qlten::SVD((*this)(site_idx), ldims, qndiv-qndiv, trunc_err, Dmin, Dmax, &u, &s, pvt, &actrual_trunc_err, &D);
+  qlten::SVD((*this)(site_idx), ldims, qndiv - qndiv, trunc_err, Dmin, Dmax, &u, &s, pvt, &actrual_trunc_err, &D);
   delete (*this)(site_idx);
   (*this)(site_idx) = pvt;
 
@@ -470,7 +459,6 @@ void FiniteMPO<TenElemT, QNT>::RightCanonicalizeTen_(const size_t site_idx,
   tens_cano_type_[site_idx] = MPSTenCanoType::RIGHT;
   tens_cano_type_[site_idx - 1] = MPSTenCanoType::NONE;
 }
-
 
 }//xtrg
 

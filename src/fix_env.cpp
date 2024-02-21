@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
   for (size_t i = 0; i < N; i++) {
     std::string filename = kMpoPath + "/" +
         kMpoTenBaseName + std::to_string(i) + "." +
-        kqltenFileSuffix;
+        kQLTenFileSuffix;
     mpo.LoadTen(i, filename);
   }
   const SiteVec<TenElemT, U1QN> sites(N, pb_out);

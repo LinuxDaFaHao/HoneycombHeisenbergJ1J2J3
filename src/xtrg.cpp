@@ -25,7 +25,6 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-
   CaseParams params(argv[1]);
   const size_t Lx = params.Lx;
 //  const size_t Ly = params.Ly;
@@ -35,25 +34,25 @@ int main(int argc, char *argv[]) {
   double J2 = params.J2;
   double J3 = params.J3;
   std::cout << "Model parameter: J1 = " << J1 << ",\t J2 = " << J2 << ",\t J3 = " << J3 << endl;
-  clock_t startTime,endTime;
+  clock_t startTime, endTime;
   startTime = clock();
-  qlten::hp_numeric::SetTensorTransposeNumThreads(params.Threads);
   qlten::hp_numeric::SetTensorManipulationThreads(params.Threads);
 
   using namespace spin_one_model;
   const qlmps::SiteVec<TenElemT, U1QN> sites(N, pb_out);
   qlmps::MPOGenerator<TenElemT, U1QN> mpo_gen(sites, qn0);
 
-  xtrg::FiniteMPO<TenElemT, U1QN> hamiltonian(N), density_matrix(N);
+  xtrg::FiniteMPO < TenElemT, U1QN > hamiltonian(N), density_matrix(N);
   if (qlmps::IsPathExist(kMpoPath)) {
-    for(size_t i=0; i < N;i++){
+    for (size_t i = 0; i < N; i++) {
       std::string filename = kMpoPath + "/" +
-          kMpoTenBaseName + std::to_string(i) + "." + qlmps::kqltenFileSuffix;
-      hamiltonian.LoadTen(i,filename);
+          kMpoTenBaseName + std::to_string(i) + "."
+          + qlmps::kQLTenFileSuffix;
+      hamiltonian.LoadTen(i, filename);
       density_matrix.alloc(i);
     }
     cout << "FiniteMPO loaded." << endl;
-  }else{
+  } else {
     cout << "No mpo directory. exiting" << std::endl;
     exit(0);
   }
@@ -62,13 +61,12 @@ int main(int argc, char *argv[]) {
       params.tau, params.M,
       params.Dmin, params.Dmax, params.CutOff,
       params.TaylorOrder, params.TaylorErr,
-      params.Sweeps,params.ConvergeTolerance
+      params.Sweeps, params.ConvergeTolerance
   );
-
 
   xtrg::Xtrg(hamiltonian, xtrg_params, density_matrix);
   endTime = clock();
-  cout << "CPU Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+  cout << "CPU Time : " << (double) (endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
   return 0;
 }
 

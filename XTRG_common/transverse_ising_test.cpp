@@ -13,11 +13,11 @@
 
 #include "qlmps/qlmps.h"
 #include "qlten/qlten.h"
-using TenElemT = qlten::qlten_Double;
+using TenElemT = qlten::QLTEN_Double;
 using QNT = qlten::QN<qlten::U1QNVal>;
 using QNSctT = qlten::QNSector<QNT>;
 using IndexT = qlten::Index<QNT>;
-using Tensor = qlten::qltensor<TenElemT, QNT>;
+using Tensor = qlten::QLTensor<TenElemT, QNT>;
 using SiteVecT = qlmps::SiteVec<TenElemT, QNT>;
 using FiniteMPST = qlmps::FiniteMPS<TenElemT, QNT>;
 int main() {

@@ -42,33 +42,33 @@ void Generate3MPOEnvs(
 );
 template <typename TenElemT, typename QNT, char dir>
 void MPOProductVariationalSingleStep(
-    const qltensor<TenElemT, QNT>& lenv,
-    const qltensor<TenElemT, QNT>& renv,
-    const qltensor<TenElemT, QNT>& mpo1l,
-    const qltensor<TenElemT, QNT>& mpo1r,
-    const qltensor<TenElemT, QNT>& mpo2l,
-    const qltensor<TenElemT, QNT>& mpo2r,
-    const qlten_Double trunc_err,
+    const QLTensor<TenElemT, QNT>& lenv,
+    const QLTensor<TenElemT, QNT>& renv,
+    const QLTensor<TenElemT, QNT>& mpo1l,
+    const QLTensor<TenElemT, QNT>& mpo1r,
+    const QLTensor<TenElemT, QNT>& mpo2l,
+    const QLTensor<TenElemT, QNT>& mpo2r,
+    const QLTEN_Double trunc_err,
     const size_t Dmin,
     const size_t Dmax,
-    qltensor<TenElemT, QNT>& mpo_out_l,
-    qltensor<TenElemT, QNT>& mpo_out_r
+    QLTensor<TenElemT, QNT>& mpo_out_l,
+    QLTensor<TenElemT, QNT>& mpo_out_r
 );
 
 template <typename TenElemT, typename QNT>
-qltensor<TenElemT, QNT> UpdateLenv(
-    const qltensor<TenElemT, QNT> &lenv,
-    const qltensor<TenElemT, QNT> &mpo_ten_o,
-    const qltensor<TenElemT, QNT> &mpo_ten1,
-    const qltensor<TenElemT, QNT> &mpo_ten2
+QLTensor<TenElemT, QNT> UpdateLenv(
+    const QLTensor<TenElemT, QNT> &lenv,
+    const QLTensor<TenElemT, QNT> &mpo_ten_o,
+    const QLTensor<TenElemT, QNT> &mpo_ten1,
+    const QLTensor<TenElemT, QNT> &mpo_ten2
 );
 
 template <typename TenElemT, typename QNT>
-qltensor<TenElemT, QNT> UpdateRenv(
-    const qltensor<TenElemT, QNT> &renv,
-    const qltensor<TenElemT, QNT> &mpo_ten_o,
-    const qltensor<TenElemT, QNT> &mpo_ten1,
-    const qltensor<TenElemT, QNT> &mpo_ten2
+QLTensor<TenElemT, QNT> UpdateRenv(
+    const QLTensor<TenElemT, QNT> &renv,
+    const QLTensor<TenElemT, QNT> &mpo_ten_o,
+    const QLTensor<TenElemT, QNT> &mpo_ten1,
+    const QLTensor<TenElemT, QNT> &mpo_ten2
 );
 
 template <typename TenElemT, typename QNT>
@@ -77,7 +77,7 @@ void MpoSum(
     const FiniteMPO<TenElemT, QNT>& input_mpo2,
     FiniteMPO<TenElemT, QNT>& output_mpo
 ) {
-  using Tensor = qltensor<TenElemT, QNT>;
+  using Tensor = QLTensor<TenElemT, QNT>;
   const size_t N = input_mpo1.size();
   for(size_t i = 0; i < N; i++){
     if(output_mpo(i)!=nullptr) {
@@ -100,7 +100,7 @@ void MpoScale(
     FiniteMPO<TenElemT, QNT>& mpo,
     const TenElemT factor
 ){
-  for(qltensor<TenElemT, QNT>* ptensor : mpo ){
+  for(QLTensor<TenElemT, QNT>* ptensor : mpo ){
     ptensor->MultiplyByScalar(factor);
   }
   return;
@@ -111,7 +111,7 @@ void GenerateIndentiyMPO(
     const FiniteMPO<TenElemT, QNT>& sample_mpo, //e.g. Hamiltonian
     FiniteMPO<TenElemT, QNT>& output_identity_mpo //output
 ) {
-  using Tensor = qltensor<TenElemT, QNT>;
+  using Tensor = QLTensor<TenElemT, QNT>;
   const size_t N = sample_mpo.size();
 
   const Index<QNT> trivial_index_in =  sample_mpo[0].GetIndexes()[0];
@@ -156,7 +156,7 @@ void MpoProduct(
     const FiniteMPO<TenElemT, QNT>& mpo2,
     FiniteMPO<TenElemT, QNT>& output_mpo
 ) {
-  using Tensor = qltensor<TenElemT, QNT>;
+  using Tensor = QLTensor<TenElemT, QNT>;
   const size_t N = mpo1.size();
   for(size_t i = 0; i < N; i++){
     if(output_mpo(i)!=nullptr) {
@@ -224,7 +224,7 @@ double MpoProduct(
     const double sweep_converge_tolerance,
     const std::string temp_path
 ) {
-  using Tensor = qltensor<TenElemT, QNT>;
+  using Tensor = QLTensor<TenElemT, QNT>;
   const size_t N = mpo1.size();
   double output_mpo_valid(true);
   for(size_t i = 0; i < N; i++){
@@ -255,14 +255,14 @@ double MpoProduct(
 
     Tensor lenv;
     //load lenv 0;
-    ReadqltensorFromFile(lenv, GenEnvTenName("l", 0, temp_path));
+    ReadQLTensorFromFile(lenv, GenEnvTenName("l", 0, temp_path));
     for(size_t lsite = 0; lsite < N - 2; lsite++) {
       Tensor renv;
       size_t rsite = lsite + 1;
       //load renv, delete it;
       size_t renv_len = N - rsite -1 ;
       std::string renv_file = GenEnvTenName("r", renv_len, temp_path);
-      ReadqltensorFromFile(renv, renv_file);
+      ReadQLTensorFromFile(renv, renv_file);
       RemoveFile(renv_file);
       //update lsite, lsite+1, direction 'r'
       std::cout << IndentPrinter(indent_level)
@@ -279,19 +279,19 @@ double MpoProduct(
       //update lenv_next, dump it;
       lenv = std::move(UpdateLenv(lenv, output_mpo[lsite], mpo1[lsite], mpo2[lsite]));
       std::string lenv_file = GenEnvTenName("l", rsite, temp_path);
-      WriteqltensorTOFile(lenv, lenv_file);
+      WriteQLTensorTOFile(lenv, lenv_file);
     }
 
     //load renv 0;
     Tensor renv;
-    ReadqltensorFromFile(renv, GenEnvTenName("r", 0, temp_path));
+    ReadQLTensorFromFile(renv, GenEnvTenName("r", 0, temp_path));
     for(size_t lsite = N - 2; lsite > 0; lsite--) {
       Tensor lenv;
       size_t rsite = lsite + 1;
       size_t lenv_len = lsite;
       //load lenv, delete it;
       std::string lenv_file = GenEnvTenName("l", lenv_len, temp_path);
-      ReadqltensorFromFile(lenv, lenv_file);
+      ReadQLTensorFromFile(lenv, lenv_file);
       RemoveFile(lenv_file);
 
       //update lsite, lsite+1, direction 'l'
@@ -309,9 +309,9 @@ double MpoProduct(
       //update renv_next, dump it;
       renv = std::move(UpdateRenv(renv, output_mpo[rsite], mpo1[rsite], mpo2[rsite]));
       std::string renv_file = GenEnvTenName("r", N - lsite - 1, temp_path);
-      WriteqltensorTOFile(renv, renv_file);
+      WriteQLTensorTOFile(renv, renv_file);
     }
-    //future: write Norm() function for qltensor
+    //future: write Norm() function for QLTensor
     Tensor mpo1_dag = Dag(output_mpo[1]);
     Tensor scalar_ten;
     Contract(output_mpo(1), &mpo1_dag, {{0,1,2,3},{0,1,2,3}}, &scalar_ten);
@@ -357,20 +357,20 @@ double MpoProduct(
  */
 template <typename TenElemT, typename QNT, char dir>
 void MPOProductVariationalSingleStep(
-    const qltensor<TenElemT, QNT>& lenv,
-    const qltensor<TenElemT, QNT>& renv,
-    const qltensor<TenElemT, QNT>& mpo1l,
-    const qltensor<TenElemT, QNT>& mpo1r,
-    const qltensor<TenElemT, QNT>& mpo2l,
-    const qltensor<TenElemT, QNT>& mpo2r,
-    const qlten_Double trunc_err,
+    const QLTensor<TenElemT, QNT>& lenv,
+    const QLTensor<TenElemT, QNT>& renv,
+    const QLTensor<TenElemT, QNT>& mpo1l,
+    const QLTensor<TenElemT, QNT>& mpo1r,
+    const QLTensor<TenElemT, QNT>& mpo2l,
+    const QLTensor<TenElemT, QNT>& mpo2r,
+    const QLTEN_Double trunc_err,
     const size_t Dmin,
     const size_t Dmax,
-    qltensor<TenElemT, QNT>& mpo_out_l,
-    qltensor<TenElemT, QNT>& mpo_out_r
+    QLTensor<TenElemT, QNT>& mpo_out_l,
+    QLTensor<TenElemT, QNT>& mpo_out_r
 ){
   Timer update_timer("two_site_fvmpo_update");
-  using Tensor = qltensor<TenElemT, QNT>;
+  using Tensor = QLTensor<TenElemT, QNT>;
   Tensor* ptemp0 = new Tensor();
   Tensor* ptemp1 = new Tensor();
   Tensor* ptemp2 = new Tensor();
@@ -386,10 +386,10 @@ void MPOProductVariationalSingleStep(
   delete ptemp1;
   delete ptemp2;
   ptemp0->Transpose({0,1,2,3,5,4});
-  qlten_Double actual_trunc_err;
+  QLTEN_Double actual_trunc_err;
   size_t D;
 
-  using DTenT = qltensor<qlten_Double, QNT>;
+  using DTenT = QLTensor<QLTEN_Double, QNT>;
   DTenT s;
 
   if(dir == 'r'){
@@ -440,7 +440,7 @@ void Generate3MPOEnvs(
     const FiniteMPO<TenElemT, QNT>& mpo2,
     const std::string temp_path
     ) {
-  using TenT = qltensor<TenElemT, QNT>;
+  using TenT = QLTensor<TenElemT, QNT>;
   auto N = mpo0.size();
   assert( N == mpo1.size() );
   assert( N == mpo2.size() );
@@ -452,12 +452,12 @@ void Generate3MPOEnvs(
   renv({0, 0, 0}) = 1;
 
   std::string file = GenEnvTenName("r", 0, temp_path);
-  WriteqltensorTOFile(renv, file);
+  WriteQLTensorTOFile(renv, file);
 
   for (size_t i = 1; i < N  - 1; ++i) {
     TenT renv_next = UpdateRenv(renv, mpo0[N-i], mpo1[N-i],mpo2[N-i]); //question: if it's efficient?
     std::string file = GenEnvTenName("r", i, temp_path);
-    WriteqltensorTOFile(renv_next, file);
+    WriteQLTensorTOFile(renv_next, file);
     renv = std::move(renv_next);
   }
 
@@ -467,7 +467,7 @@ void Generate3MPOEnvs(
   TenT lenv = TenT({trivial_index0, trivial_index1, trivial_index2});
   lenv({0, 0, 0}) = 1;
   file = GenEnvTenName("l", 0, temp_path);
-  WriteqltensorTOFile(lenv, file);
+  WriteQLTensorTOFile(lenv, file);
   return;
 }
 
@@ -475,13 +475,13 @@ void Generate3MPOEnvs(
 
 
 template <typename TenElemT, typename QNT>
-qltensor<TenElemT, QNT> UpdateRenv(
-    const qltensor<TenElemT, QNT> &renv,
-    const qltensor<TenElemT, QNT> &mpo_ten_o,
-    const qltensor<TenElemT, QNT> &mpo_ten1,
-    const qltensor<TenElemT, QNT> &mpo_ten2
+QLTensor<TenElemT, QNT> UpdateRenv(
+    const QLTensor<TenElemT, QNT> &renv,
+    const QLTensor<TenElemT, QNT> &mpo_ten_o,
+    const QLTensor<TenElemT, QNT> &mpo_ten1,
+    const QLTensor<TenElemT, QNT> &mpo_ten2
     ) {
-  using TenT = qltensor<TenElemT, QNT>;
+  using TenT = QLTensor<TenElemT, QNT>;
   TenT renv_next,temp0,temp1;
   TenT mpo_ten_o_dag = Dag(mpo_ten_o);
   mpo_ten_o_dag.Transpose({0,2,1,3});
@@ -511,13 +511,13 @@ qltensor<TenElemT, QNT> UpdateRenv(
  *            1
  */
 template <typename TenElemT, typename QNT>
-qltensor<TenElemT, QNT> UpdateLenv(
-    const qltensor<TenElemT, QNT> &lenv,
-    const qltensor<TenElemT, QNT> &mpo_ten_o,
-    const qltensor<TenElemT, QNT> &mpo_ten1,
-    const qltensor<TenElemT, QNT> &mpo_ten2
+QLTensor<TenElemT, QNT> UpdateLenv(
+    const QLTensor<TenElemT, QNT> &lenv,
+    const QLTensor<TenElemT, QNT> &mpo_ten_o,
+    const QLTensor<TenElemT, QNT> &mpo_ten1,
+    const QLTensor<TenElemT, QNT> &mpo_ten2
     ) {
-  using TenT = qltensor<TenElemT, QNT>;
+  using TenT = QLTensor<TenElemT, QNT>;
   TenT lenv_next,temp0,temp1;
   TenT mpo_ten_o_dag = Dag(mpo_ten_o);
   mpo_ten_o_dag.Transpose({0,2,1,3});

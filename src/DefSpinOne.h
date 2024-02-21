@@ -10,15 +10,11 @@
 
 #include "qlten/qlten.h"
 
-
-using TenElemT = qlten:: QLTEN_Double;
+using TenElemT = qlten::QLTEN_Double;
 
 using U1QN = qlten::special_qn::U1QN; // Sz
 
 using qlten::QLTensor;
-
-const std::string kMpoPath = "mpo";
-const std::string kMpoTenBaseName = "mpo_ten";
 
 namespace spin_one_model {
 using QNSctT = qlten::QNSector<U1QN>;
@@ -26,11 +22,11 @@ using IndexT = qlten::Index<U1QN>;
 using Tensor = QLTensor<TenElemT, U1QN>;
 const U1QN qn0 = U1QN(0);
 const IndexT pb_out = IndexT({   //QNSctT( U1QN(Sz * 3), degeneracy )
-                                  QNSctT(U1QN(1), 1),
-                                  QNSctT(U1QN(0), 1),
-                                  QNSctT(U1QN(-1), 1),
-                              },
-                              qlten::TenIndexDirType::OUT
+                                 QNSctT(U1QN(1), 1),
+                                 QNSctT(U1QN(0), 1),
+                                 QNSctT(U1QN(-1), 1),
+                             },
+                             qlten::TenIndexDirType::OUT
 );
 const IndexT pb_in = qlten::InverseIndex(pb_out);
 

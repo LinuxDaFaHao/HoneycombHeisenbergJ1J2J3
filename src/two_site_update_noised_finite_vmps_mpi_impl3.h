@@ -18,16 +18,7 @@
 
 #include <cstdlib>
 #include "qlten/qlten.h"
-#include "qlmps/algorithm/lanczos_solver.h"                        //LanczosParams
-#include "boost/mpi.hpp"                                            //boost::mpi
-#include "qlmps/algo_mpi/framework.h"                              //VMPSORDER
-#include "qlmps/algo_mpi/vmps/vmps_mpi_init.h"                     //MPI vmps initial
-#include "qlmps/algo_mpi/vmps/two_site_update_finite_vmps_mpi.h"   //TwoSiteMPIVMPSSweepParams
-#include "qlmps/algo_mpi/vmps/two_site_update_noised_finite_vmps_mpi.h" //TwoSiteMPINoisedVMPSSweepParams
-#include "qlmps/algo_mpi/lanczos_solver_mpi.h"                     //MPI Lanczos solver
-#include "qlmps/algo_mpi/vmps/two_site_update_finite_vmps_mpi_impl.h" //SlaveTwoSiteFiniteVMPS
-#include "qlmps/algo_mpi/vmps/two_site_update_noised_finite_vmps_mpi_impl.h" //Load related tensors
-#include <thread>                                                       //thread
+#include "qlmps/qlmps.h"
 
 namespace qlmps {
 using namespace qlten;
@@ -40,7 +31,7 @@ inline void LoadRelatedTensOnTwoSiteAlgWhenNoisedRightMoving(
     TenVec<QLTensor<TenElemT, QNT>> &renvs,
     const size_t target_site,
     const size_t left_boundary,
-    const TwoSiteMPINoisedVMPSSweepParams &sweep_params
+    const FiniteVMPSSweepParams &sweep_params
 );
 
 template<typename TenElemT, typename QNT>
@@ -307,7 +298,7 @@ double TwoSiteFiniteVMPSSweep2_StartToLeft(
       );
     }
     if (i == start_site) {
-      TwoSiteMPINoisedVMPSSweepParams sweep_params2 = sweep_params;
+      FiniteVMPSSweepParams sweep_params2 = sweep_params;
       sweep_params2.lancz_params.max_iterations = 100;
       e0 = MasterTwoSiteFiniteVMPSUpdate2(mps, lenvs, renvs, mpo, sweep_params2, 'l', i, noise, world);
     } else {
