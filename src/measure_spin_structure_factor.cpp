@@ -24,7 +24,6 @@ int main(int argc, char *argv[]) {
   clock_t startTime, endTime;
   startTime = clock();
 
-  qlten::hp_numeric::SetTensorTransposeNumThreads(params.Threads);
   qlten::hp_numeric::SetTensorManipulationThreads(params.Threads);
 
   using namespace spin_one_model;
