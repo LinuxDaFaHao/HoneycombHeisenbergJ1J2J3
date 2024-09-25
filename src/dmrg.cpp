@@ -1,9 +1,7 @@
 #include <iostream>
 #include "qlmps/qlmps.h"
 #include "qlten/qlten.h"
-#include <time.h>
 #include <vector>
-#include <stdlib.h>     // system
 #include "params_case.h"
 #include "DefSpinOne.h"
 #include "myutil.h"
@@ -14,7 +12,7 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
   namespace mpi = boost::mpi;
-  mpi::environment env(mpi::threading::multiple);
+  mpi::environment env;
   mpi::communicator world;
 
   CaseParams params(argv[1]);
